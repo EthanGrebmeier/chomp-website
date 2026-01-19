@@ -1,0 +1,21 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1f2a" />
+      <stop offset="100%" stop-color="#1a3a4d" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect x="80" y="80" width="1040" height="470" rx="48" fill="#ffffff" opacity="0.08" />
+  <g fill="#ffffff">
+    <text x="120" y="260" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">
+      Chomp
+    </text>
+    <text x="120" y="340" font-family="Arial, Helvetica, sans-serif" font-size="40">
+      Grocery list invitation
+    </text>
+    <text x="120" y="410" font-family="Arial, Helvetica, sans-serif" font-size="28" opacity="0.9">
+      Open this list in the app.
+    </text>
+  </g>
+</svg>
