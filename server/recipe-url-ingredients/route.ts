@@ -14,6 +14,15 @@ import {
 } from './anthropicClient.js'
 import { parseAIResponse, AIExtractError, hasIngredients } from './aiExtract.js'
 import { normalizeExtraction } from './normalizeIngredients.js'
+import {
+  createLoggingMiddleware,
+  getRequestContext,
+  extractUrlHost,
+  startTimer,
+  logRequest,
+  logError,
+  type RequestLogEntry,
+} from './logging.js'
 import type {
   RecipeUrlIngredientsResponse,
   RecipeUrlIngredientsErrorResponse,
@@ -102,6 +111,40 @@ const getAnthropicClient = (): AnthropicClient => {
  * Main route handler for extracting ingredients from a recipe URL.
  */
 const extractIngredientsHandler: RequestHandler = async (req, res) => {
+  const ctx = getRequestContext(req)
+  const { requestId, userId } = ctx
+
+  // Track metrics for logging
+  let urlHost: string | null = null
+  let fetchLatencyMs: number | null = null
+  let aiLatencyMs: number | null = null
+  let tokenUsage: { input: number; output: number } | null = null
+
+  /**
+   * Helper to log and send error response.
+   */
+  const sendError = (
+    statusCode: number,
+    errorCode: RecipeUrlIngredientsErrorCode,
+    message: string
+  ) => {
+    const totalLatencyMs = Date.now() - ctx.startTime
+    const logEntry: RequestLogEntry = {
+      requestId,
+      userId,
+      urlHost,
+      fetchLatencyMs,
+      aiLatencyMs,
+      tokenUsage,
+      totalLatencyMs,
+      status: 'error',
+      errorCode,
+    }
+    logRequest(logEntry)
+    logError(requestId, errorCode, message, { urlHost })
+    res.status(statusCode).json(buildErrorResponse(errorCode, message))
+  }
+
   // Parse and validate request body
   let parsedRequest
   try {
@@ -109,30 +152,35 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   } catch (error) {
     if (error instanceof ZodError) {
       const message = error.errors.map((e) => e.message).join('; ')
-      res.status(400).json(buildErrorResponse('invalid_url', message))
+      sendError(400, 'invalid_url', message)
       return
     }
-    res.status(400).json(buildErrorResponse('invalid_url', 'Invalid request body'))
+    sendError(400, 'invalid_url', 'Invalid request body')
     return
   }
 
   const { url: rawUrl } = parsedRequest
+  urlHost = extractUrlHost(rawUrl)
 
   // Validate URL structure
   const urlResult = validateUrl(rawUrl)
   if (!urlResult.valid) {
-    res.status(400).json(buildErrorResponse('invalid_url', urlResult.reason))
+    sendError(400, 'invalid_url', urlResult.reason)
     return
   }
   const url = urlResult.url
 
   // Fetch HTML from URL
+  const fetchTimer = startTimer()
   const fetchResult = await fetchHtml(url)
+  fetchLatencyMs = fetchTimer.elapsed()
+
   if (!fetchResult.ok) {
     const fetchError = fetchResult as HtmlFetchError
     const errorCode = mapFetchErrorCode(fetchError.code)
-    const statusCode = errorCode === 'fetch_timeout' ? 408 : errorCode === 'content_too_large' ? 413 : 400
-    res.status(statusCode).json(buildErrorResponse(errorCode, fetchError.message))
+    const statusCode =
+      errorCode === 'fetch_timeout' ? 408 : errorCode === 'content_too_large' ? 413 : 400
+    sendError(statusCode, errorCode, fetchError.message)
     return
   }
 
@@ -141,7 +189,7 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   if (!contentResult.ok) {
     const contentError = contentResult as ContentExtractError
     const errorCode = mapContentErrorCode(contentError.code)
-    res.status(400).json(buildErrorResponse(errorCode, contentError.message))
+    sendError(400, errorCode, contentError.message)
     return
   }
 
@@ -149,15 +197,20 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   let aiResult
   try {
     const client = getAnthropicClient()
-    aiResult = await client.extractIngredients(contentResult.content)
+    aiResult = await client.extractIngredients(contentResult.content, { requestId })
+    aiLatencyMs = aiResult.latencyMs
+    tokenUsage = {
+      input: aiResult.usage.inputTokens,
+      output: aiResult.usage.outputTokens,
+    }
   } catch (error) {
     if (error instanceof AnthropicClientError) {
       const errorCode = mapAnthropicErrorCode(error.code)
       const statusCode = errorCode === 'rate_limited' ? 429 : 500
-      res.status(statusCode).json(buildErrorResponse(errorCode, error.message))
+      sendError(statusCode, errorCode, error.message)
       return
     }
-    res.status(500).json(buildErrorResponse('server_error', 'AI extraction failed'))
+    sendError(500, 'server_error', 'AI extraction failed')
     return
   }
 
@@ -167,18 +220,16 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
     parsedExtraction = parseAIResponse(aiResult)
   } catch (error) {
     if (error instanceof AIExtractError) {
-      res.status(500).json(buildErrorResponse('parse_failed', error.message))
+      sendError(500, 'parse_failed', error.message)
       return
     }
-    res.status(500).json(buildErrorResponse('parse_failed', 'Failed to parse AI response'))
+    sendError(500, 'parse_failed', 'Failed to parse AI response')
     return
   }
 
   // Check if we got any ingredients
   if (!hasIngredients(parsedExtraction.extraction)) {
-    res
-      .status(400)
-      .json(buildErrorResponse('unsupported_content', 'No ingredients found in page'))
+    sendError(400, 'unsupported_content', 'No ingredients found in page')
     return
   }
 
@@ -187,6 +238,21 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
     parsedExtraction.extraction,
     rawUrl
   )
+
+  // Log successful request
+  const totalLatencyMs = Date.now() - ctx.startTime
+  const logEntry: RequestLogEntry = {
+    requestId,
+    userId,
+    urlHost,
+    fetchLatencyMs,
+    aiLatencyMs,
+    tokenUsage,
+    totalLatencyMs,
+    status: 'success',
+    errorCode: null,
+  }
+  logRequest(logEntry)
 
   res.status(200).json(response)
 }
@@ -197,6 +263,7 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
  */
 export const createRecipeUrlIngredientsRoute = (): RequestHandler[] => {
   return [
+    createLoggingMiddleware(),
     ...createClerkAuthMiddleware(),
     createRateLimitMiddleware(),
     extractIngredientsHandler,

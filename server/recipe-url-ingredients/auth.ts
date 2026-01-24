@@ -24,6 +24,11 @@ export const createClerkAuthMiddleware = (): RequestHandler[] => [
       sessionId: sessionId ?? null,
     }
 
+    // Update request context with authenticated user ID for logging
+    if (req.ctx) {
+      req.ctx.userId = userId
+    }
+
     next()
   },
 ]

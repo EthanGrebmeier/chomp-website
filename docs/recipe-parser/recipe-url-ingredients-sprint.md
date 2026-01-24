@@ -116,11 +116,15 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `errors.ts` + Express error middleware.
 
 ### 13) Observability and Logging
-- **Status**: Not started
-- **Work**: Add request id, user id, host, fetch latency, and AI latency logging.
-  Avoid logging full URL query strings or HTML.
-- **Tests/Validation**: Manual verification in dev logs.
-- **Deliverable**: Logging utilities and middleware.
+- **Status**: Done
+- **Work**: Added structured logging with request ID generation, timing helpers, and
+  JSON log output. Logging middleware attaches request context (requestId, userId,
+  startTime) to requests. Route handler logs fetch latency, AI latency, token usage,
+  total latency, URL host (not full query strings), and error codes. Auth middleware
+  populates userId in context for tracing.
+- **Tests/Validation**: Types check via `pnpm tsc`. Existing tests pass.
+- **Deliverable**: `server/recipe-url-ingredients/logging.ts` + updated route.ts and
+  auth.ts.
 
 ### 14) Integration Test Suite
 - **Status**: Not started
