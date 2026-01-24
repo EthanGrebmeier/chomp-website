@@ -1,0 +1,24 @@
+---
+description: Prefer established libraries over custom implementations
+alwaysApply: true
+---
+
+# Prefer Libraries Over Custom Code
+
+Use established libraries instead of writing custom implementations when reasonable.
+
+## Guidelines
+
+- **Search first**: Before implementing functionality, check if a well-maintained library exists
+- **Don't reinvent**: HTTP clients, parsing, validation, date handling — these are solved problems
+- **Custom code**: Only write custom code when there's a genuine gap or the library overhead isn't justified
+
+## Examples
+
+| Task | Use Library | Don't Write Custom |
+|------|-------------|-------------------|
+| HTTP with limits | `got`, `axios` | manual fetch with timeout/redirect handling |
+| HTML parsing | `cheerio`, `linkedom` | regex or manual DOM traversal |
+| Content extraction | `@mozilla/readability` | custom article extraction |
+| Schema validation | `zod`, `yup` | manual validation logic |
+| AI APIs | official SDKs (`@anthropic-ai/sdk`) | raw HTTP calls |
