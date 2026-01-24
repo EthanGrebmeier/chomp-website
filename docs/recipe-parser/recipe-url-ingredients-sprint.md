@@ -17,11 +17,12 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `config.ts` (or similar) and validation logic.
 
 ### 2) Request/Response Types and Schemas
-- **Status**: Not started
-- **Work**: Define TypeScript interfaces for request/response and errors; add
-  schema validation for request body (e.g., Zod).
-- **Tests/Validation**: Unit tests for schema validation (missing/invalid URL).
-- **Deliverable**: `types.ts` + schema module.
+- **Status**: Done
+- **Work**: Defined TypeScript types for request/response/errors and added Zod
+  schemas for request/response/error validation (including http/https URL checks).
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/types.ts` and
+  `server/recipe-url-ingredients/schema.ts`.
 
 ### 3) Clerk Auth Middleware
 - **Status**: Not started
