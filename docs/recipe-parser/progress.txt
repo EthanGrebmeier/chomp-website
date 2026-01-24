@@ -4,3 +4,4 @@
 2026-01-23 - Switched auth middleware to `@clerk/express` clerkMiddleware/getAuth.
 2026-01-23 - Added rate limiting middleware (30 req/min per user) with memory store and RateLimitStore abstraction for future Redis.
 2026-01-23 - Added URL validation with SSRF protections using `request-filtering-agent` library. Basic URL validation in urlValidation.ts, SSRF protection at fetch level via the library.
+2026-01-23 - Added HTML fetching with limits in htmlFetch.ts. Implements timeout (10s default), max size (2MB), redirect limit (5), SSRF protection via request-filtering-agent, content-type validation, and streaming body reader with size enforcement.
