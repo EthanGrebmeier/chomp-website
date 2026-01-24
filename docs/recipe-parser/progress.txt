@@ -2,3 +2,4 @@
 2026-01-23 - Added recipe URL ingredients request/response/error types and Zod schemas for validation.
 2026-01-23 - Added Clerk auth middleware to verify Bearer tokens and attach userId.
 2026-01-23 - Switched auth middleware to `@clerk/express` clerkMiddleware/getAuth.
+2026-01-23 - Added rate limiting middleware (30 req/min per user) with memory store and RateLimitStore abstraction for future Redis.

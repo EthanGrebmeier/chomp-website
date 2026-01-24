@@ -33,12 +33,13 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `server/recipe-url-ingredients/auth.ts`.
 
 ### 4) Rate Limiting Middleware
-- **Status**: Not started
-- **Work**: Add per-user rate limiting (e.g., 30 req/min). Use memory store for
-  now; structure for future Redis.
-- **Tests/Validation**: Unit test throttle behavior; manual test by hitting
-  endpoint > limit returns `429`.
-- **Deliverable**: `rateLimit.ts` middleware.
+- **Status**: Done
+- **Work**: Added per-user rate limiting (30 req/min) with in-memory store.
+  Structured with `RateLimitStore` interface for future Redis migration.
+  Includes rate limit headers (X-RateLimit-Limit/Remaining/Reset) and
+  Retry-After on 429.
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/rateLimit.ts`.
 
 ### 5) URL Validation + SSRF Protections
 - **Status**: Not started
