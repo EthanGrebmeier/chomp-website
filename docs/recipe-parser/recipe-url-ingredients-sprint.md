@@ -87,10 +87,14 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `server/recipe-url-ingredients/aiExtract.ts`.
 
 ### 10) Ingredient Normalization
-- **Status**: Not started
-- **Work**: Normalize names, whitespace, and units (lowercase); handle nulls.
-- **Tests/Validation**: Unit tests for normalization edge cases (fractions, units).
-- **Deliverable**: `normalizeIngredients.ts`.
+- **Status**: Done
+- **Work**: Implemented ingredient normalization with whitespace cleanup, unit
+  standardization (maps common variations like "tablespoons" → "tbsp"), and
+  lowercase ingredient names. Handles null values and empty strings properly.
+- **Tests/Validation**: 49 unit tests covering unit mappings, whitespace handling,
+  fractional quantities, null/empty edge cases. Tests pass via `pnpm test`.
+- **Deliverable**: `server/recipe-url-ingredients/normalizeIngredients.ts` +
+  `server/recipe-url-ingredients/normalizeIngredients.test.ts`.
 
 ### 11) API Route Assembly
 - **Status**: Not started
