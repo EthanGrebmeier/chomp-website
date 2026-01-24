@@ -1,0 +1,1 @@
+2026-01-23 - Added server config validation for Clerk + Anthropic env vars and fail-fast startup guard.

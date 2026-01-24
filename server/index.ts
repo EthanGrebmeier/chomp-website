@@ -1,9 +1,18 @@
 import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { loadConfig } from './config.js'
 
 const app = express()
-const port = Number(process.env.PORT) || 3000
+let port = 3000
+try {
+  const config = loadConfig()
+  port = config.port
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error(message)
+  process.exit(1)
+}
 
 const currentFile = fileURLToPath(import.meta.url)
 const currentDir = path.dirname(currentFile)
@@ -26,8 +35,8 @@ const buildSharePageHtml = (joinCode: string) => {
   const title = 'Join my Chomp list'
   const description = 'Open this list in the Chomp app.'
   const imageUrl = 'https://chompgrocery.com/og/og-invite.png'
-  const shareUrl = `https://chompgrocery.com/list/${safeJoinCode}`
-  const deepLinkUrl = `chomp://list/${safeJoinCode}`
+  const shareUrl = `https://chompgrocery.com/join-list/${safeJoinCode}`
+  const deepLinkUrl = `chomp://join-list/${safeJoinCode}`
 
   return `<!doctype html>
 <html lang="en">
