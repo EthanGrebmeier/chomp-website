@@ -141,11 +141,12 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `server/recipe-url-ingredients/route.integration.test.ts`.
 
 ### 15) Demo Script / Validation Checklist
-- **Status**: Not started
-- **Work**: Provide a simple curl script or README section that demonstrates
-  successful request and error cases.
-- **Tests/Validation**: Manual run against dev server.
-- **Deliverable**: `docs/demo-recipe-url-api.md` or README update.
+- **Status**: Done
+- **Work**: Created comprehensive demo documentation with curl examples for
+  success and error cases, error code reference table, testing checklist,
+  and a shell script for quick API testing.
+- **Tests/Validation**: Manual validation against curl examples.
+- **Deliverable**: `docs/recipe-parser/demo-recipe-url-api.md`.
 
 ## Sequencing Rationale
 - Start with configuration and types to stabilize interfaces.
