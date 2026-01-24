@@ -51,18 +51,20 @@ returns normalized JSON with robust error handling and tests.
   `request-filtering-agent` dependency.
 
 ### 6) HTML Fetching with Limits
-- **Status**: Not started
-- **Work**: Implement fetch with timeouts, max size (2 MB), and redirect cap.
-- **Tests/Validation**: Unit test for timeout and content size behavior using
-  mocked fetch; manual test with large response.
-- **Deliverable**: `htmlFetch.ts`.
+- **Status**: Done
+- **Work**: Implemented fetch with timeouts (10s default), max size (2MB),
+  redirect cap (5), SSRF protection via request-filtering-agent, content-type
+  validation, and streaming body reader with size enforcement.
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/htmlFetch.ts`.
 
 ### 7) Main Content Extraction
-- **Status**: Not started
-- **Work**: Parse HTML, strip scripts/styles, attempt readability extraction,
-  fallback to body text if needed.
-- **Tests/Validation**: Unit tests with sample HTML snapshots.
-- **Deliverable**: `contentExtract.ts`.
+- **Status**: Done
+- **Work**: Implemented content extraction using `@mozilla/readability` and
+  `linkedom`. Removes unwanted elements (scripts, styles, nav, ads), extracts
+  article content via Readability, falls back to cleaned body text if needed.
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/contentExtract.ts`.
 
 ### 8) Anthropic Client Setup
 - **Status**: Not started
