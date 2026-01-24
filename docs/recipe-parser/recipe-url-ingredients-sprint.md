@@ -108,12 +108,15 @@ returns normalized JSON with robust error handling and tests.
   `server/index.ts`.
 
 ### 12) Error Handling + Standard Responses
-- **Status**: Not started
-- **Work**: Implement centralized error handler with consistent error codes and
-  response shape.
-- **Tests/Validation**: Unit tests for error mapping; integration tests for
-  invalid URL and fetch timeout.
-- **Deliverable**: `errors.ts` + Express error middleware.
+- **Status**: Done
+- **Work**: Implemented centralized error handling with `RecipeUrlIngredientsError`
+  custom error class, HTTP status code mappings, `asyncHandler` wrapper for async
+  routes, and Express error middleware (`recipeUrlIngredientsErrorHandler`).
+  Refactored route handler to throw errors that flow to centralized middleware
+  while preserving rich metrics logging.
+- **Tests/Validation**: Types check via `pnpm tsc`. Existing tests pass.
+- **Deliverable**: `server/recipe-url-ingredients/errors.ts` + error middleware
+  wired into `server/index.ts` + refactored `route.ts`.
 
 ### 13) Observability and Logging
 - **Status**: Done

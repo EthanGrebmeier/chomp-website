@@ -1,4 +1,4 @@
-import type { RequestHandler } from 'express'
+import type { Request, Response, RequestHandler } from 'express'
 import { ZodError } from 'zod'
 import { loadConfig } from '../config.js'
 import { createClerkAuthMiddleware } from './auth.js'
@@ -20,12 +20,14 @@ import {
   extractUrlHost,
   startTimer,
   logRequest,
-  logError,
   type RequestLogEntry,
 } from './logging.js'
+import {
+  RecipeUrlIngredientsError,
+  asyncHandler,
+} from './errors.js'
 import type {
   RecipeUrlIngredientsResponse,
-  RecipeUrlIngredientsErrorResponse,
   RecipeUrlIngredientsErrorCode,
 } from './types.js'
 
@@ -82,16 +84,6 @@ const mapAnthropicErrorCode = (code: string): RecipeUrlIngredientsErrorCode => {
 }
 
 /**
- * Builds a standardized error response.
- */
-const buildErrorResponse = (
-  code: RecipeUrlIngredientsErrorCode,
-  message: string
-): RecipeUrlIngredientsErrorResponse => ({
-  error: { code, message },
-})
-
-/**
  * Lazy-initialized Anthropic client.
  * Created on first request to avoid config loading at import time.
  */
@@ -108,42 +100,59 @@ const getAnthropicClient = (): AnthropicClient => {
 }
 
 /**
- * Main route handler for extracting ingredients from a recipe URL.
+ * Helper to build and log error responses with metrics.
+ * Used for domain-specific errors where we have rich context.
  */
-const extractIngredientsHandler: RequestHandler = async (req, res) => {
+const createErrorSender = (
+  req: Request,
+  res: Response,
+  metrics: {
+    urlHost: string | null
+    fetchLatencyMs: number | null
+    aiLatencyMs: number | null
+    tokenUsage: { input: number; output: number } | null
+  }
+) => {
   const ctx = getRequestContext(req)
-  const { requestId, userId } = ctx
+  const { requestId, userId, startTime } = ctx
 
-  // Track metrics for logging
-  let urlHost: string | null = null
-  let fetchLatencyMs: number | null = null
-  let aiLatencyMs: number | null = null
-  let tokenUsage: { input: number; output: number } | null = null
-
-  /**
-   * Helper to log and send error response.
-   */
-  const sendError = (
-    statusCode: number,
-    errorCode: RecipeUrlIngredientsErrorCode,
-    message: string
-  ) => {
-    const totalLatencyMs = Date.now() - ctx.startTime
+  return (errorCode: RecipeUrlIngredientsErrorCode, message: string) => {
+    const totalLatencyMs = Date.now() - startTime
     const logEntry: RequestLogEntry = {
       requestId,
       userId,
-      urlHost,
-      fetchLatencyMs,
-      aiLatencyMs,
-      tokenUsage,
+      urlHost: metrics.urlHost,
+      fetchLatencyMs: metrics.fetchLatencyMs,
+      aiLatencyMs: metrics.aiLatencyMs,
+      tokenUsage: metrics.tokenUsage,
       totalLatencyMs,
       status: 'error',
       errorCode,
     }
     logRequest(logEntry)
-    logError(requestId, errorCode, message, { urlHost })
-    res.status(statusCode).json(buildErrorResponse(errorCode, message))
+    // Throw to centralized error handler
+    throw new RecipeUrlIngredientsError(errorCode, message)
   }
+}
+
+/**
+ * Main route handler for extracting ingredients from a recipe URL.
+ * Wrapped with asyncHandler to ensure errors propagate to Express error middleware.
+ */
+const extractIngredientsHandler = asyncHandler(async (req: Request, res: Response) => {
+  const ctx = getRequestContext(req)
+  const { requestId, userId } = ctx
+
+  // Track metrics for logging
+  const metrics = {
+    urlHost: null as string | null,
+    fetchLatencyMs: null as number | null,
+    aiLatencyMs: null as number | null,
+    tokenUsage: null as { input: number; output: number } | null,
+  }
+
+  // Error helper that logs metrics then throws to centralized handler
+  const sendError = createErrorSender(req, res, metrics)
 
   // Parse and validate request body
   let parsedRequest
@@ -151,21 +160,21 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
     parsedRequest = parseRecipeUrlIngredientsRequest(req.body)
   } catch (error) {
     if (error instanceof ZodError) {
-      const message = error.errors.map((e) => e.message).join('; ')
-      sendError(400, 'invalid_url', message)
+      const message = error.issues.map((e) => e.message).join('; ')
+      sendError('invalid_url', message)
       return
     }
-    sendError(400, 'invalid_url', 'Invalid request body')
+    sendError('invalid_url', 'Invalid request body')
     return
   }
 
   const { url: rawUrl } = parsedRequest
-  urlHost = extractUrlHost(rawUrl)
+  metrics.urlHost = extractUrlHost(rawUrl)
 
   // Validate URL structure
   const urlResult = validateUrl(rawUrl)
   if (!urlResult.valid) {
-    sendError(400, 'invalid_url', urlResult.reason)
+    sendError('invalid_url', urlResult.reason)
     return
   }
   const url = urlResult.url
@@ -173,14 +182,12 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   // Fetch HTML from URL
   const fetchTimer = startTimer()
   const fetchResult = await fetchHtml(url)
-  fetchLatencyMs = fetchTimer.elapsed()
+  metrics.fetchLatencyMs = fetchTimer.elapsed()
 
   if (!fetchResult.ok) {
     const fetchError = fetchResult as HtmlFetchError
     const errorCode = mapFetchErrorCode(fetchError.code)
-    const statusCode =
-      errorCode === 'fetch_timeout' ? 408 : errorCode === 'content_too_large' ? 413 : 400
-    sendError(statusCode, errorCode, fetchError.message)
+    sendError(errorCode, fetchError.message)
     return
   }
 
@@ -189,7 +196,7 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   if (!contentResult.ok) {
     const contentError = contentResult as ContentExtractError
     const errorCode = mapContentErrorCode(contentError.code)
-    sendError(400, errorCode, contentError.message)
+    sendError(errorCode, contentError.message)
     return
   }
 
@@ -198,19 +205,18 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   try {
     const client = getAnthropicClient()
     aiResult = await client.extractIngredients(contentResult.content, { requestId })
-    aiLatencyMs = aiResult.latencyMs
-    tokenUsage = {
+    metrics.aiLatencyMs = aiResult.latencyMs
+    metrics.tokenUsage = {
       input: aiResult.usage.inputTokens,
       output: aiResult.usage.outputTokens,
     }
   } catch (error) {
     if (error instanceof AnthropicClientError) {
       const errorCode = mapAnthropicErrorCode(error.code)
-      const statusCode = errorCode === 'rate_limited' ? 429 : 500
-      sendError(statusCode, errorCode, error.message)
+      sendError(errorCode, error.message)
       return
     }
-    sendError(500, 'server_error', 'AI extraction failed')
+    sendError('server_error', 'AI extraction failed')
     return
   }
 
@@ -220,16 +226,16 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
     parsedExtraction = parseAIResponse(aiResult)
   } catch (error) {
     if (error instanceof AIExtractError) {
-      sendError(500, 'parse_failed', error.message)
+      sendError('parse_failed', error.message)
       return
     }
-    sendError(500, 'parse_failed', 'Failed to parse AI response')
+    sendError('parse_failed', 'Failed to parse AI response')
     return
   }
 
   // Check if we got any ingredients
   if (!hasIngredients(parsedExtraction.extraction)) {
-    sendError(400, 'unsupported_content', 'No ingredients found in page')
+    sendError('unsupported_content', 'No ingredients found in page')
     return
   }
 
@@ -244,10 +250,10 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   const logEntry: RequestLogEntry = {
     requestId,
     userId,
-    urlHost,
-    fetchLatencyMs,
-    aiLatencyMs,
-    tokenUsage,
+    urlHost: metrics.urlHost,
+    fetchLatencyMs: metrics.fetchLatencyMs,
+    aiLatencyMs: metrics.aiLatencyMs,
+    tokenUsage: metrics.tokenUsage,
     totalLatencyMs,
     status: 'success',
     errorCode: null,
@@ -255,7 +261,7 @@ const extractIngredientsHandler: RequestHandler = async (req, res) => {
   logRequest(logEntry)
 
   res.status(200).json(response)
-}
+})
 
 /**
  * Creates the middleware stack and handler for the recipe URL ingredients endpoint.

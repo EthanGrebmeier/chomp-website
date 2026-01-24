@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { loadConfig } from './config.js'
 import { createRecipeUrlIngredientsRoute } from './recipe-url-ingredients/route.js'
+import { recipeUrlIngredientsErrorHandler } from './recipe-url-ingredients/errors.js'
 
 const app = express()
 let port = 3000
@@ -80,6 +81,9 @@ app.get('/join-list/:joinCode', (req, res) => {
 
 // Recipe URL ingredients API
 app.post('/api/recipes/ingredients-from-url', ...createRecipeUrlIngredientsRoute())
+
+// Error handler for recipe URL ingredients API (must be after routes)
+app.use('/api/recipes', recipeUrlIngredientsErrorHandler)
 
 app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(distPath, 'index.html'))
