@@ -97,11 +97,15 @@ returns normalized JSON with robust error handling and tests.
   `server/recipe-url-ingredients/normalizeIngredients.test.ts`.
 
 ### 11) API Route Assembly
-- **Status**: Not started
-- **Work**: Add `POST /api/recipes/ingredients-from-url` route, chain middleware,
-  and return success/error responses per spec.
-- **Tests/Validation**: Integration test for happy path with mocked AI + fetch.
-- **Deliverable**: Route handler wired into server.
+- **Status**: Done
+- **Work**: Added `POST /api/recipes/ingredients-from-url` route that chains auth
+  middleware (Clerk), rate limiting, and the main handler. Handler validates
+  request body with Zod, validates URL structure, fetches HTML, extracts content,
+  calls Anthropic AI, parses/validates AI response, normalizes ingredients, and
+  returns standardized success/error responses.
+- **Tests/Validation**: Types check via `pnpm tsc`. Existing tests pass.
+- **Deliverable**: `server/recipe-url-ingredients/route.ts` + wired into
+  `server/index.ts`.
 
 ### 12) Error Handling + Standard Responses
 - **Status**: Not started

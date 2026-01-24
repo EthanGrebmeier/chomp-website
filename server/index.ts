@@ -2,6 +2,7 @@ import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { loadConfig } from './config.js'
+import { createRecipeUrlIngredientsRoute } from './recipe-url-ingredients/route.js'
 
 const app = express()
 let port = 3000
@@ -13,6 +14,9 @@ try {
   console.error(message)
   process.exit(1)
 }
+
+// JSON body parser for API routes
+app.use(express.json())
 
 const currentFile = fileURLToPath(import.meta.url)
 const currentDir = path.dirname(currentFile)
@@ -73,6 +77,9 @@ app.get('/join-list/:joinCode', (req, res) => {
   res.set('Content-Type', 'text/html')
   res.send(buildSharePageHtml(joinCode))
 })
+
+// Recipe URL ingredients API
+app.post('/api/recipes/ingredients-from-url', ...createRecipeUrlIngredientsRoute())
 
 app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(distPath, 'index.html'))
