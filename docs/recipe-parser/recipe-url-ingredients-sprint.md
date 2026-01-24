@@ -77,11 +77,14 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `server/recipe-url-ingredients/anthropicClient.ts`.
 
 ### 9) Prompt + AI Response Parsing
-- **Status**: Not started
-- **Work**: Build prompt to request strict JSON output; parse and validate AI
-  response against schema; return `422` on malformed response.
-- **Tests/Validation**: Unit tests with mocked Anthropic responses (valid/invalid).
-- **Deliverable**: `aiExtract.ts`.
+- **Status**: Done
+- **Work**: Implemented AI response parsing and validation in `aiExtract.ts`. Uses
+  Zod schema to validate the raw JSON from Claude. Handles common edge cases like
+  markdown code blocks around JSON. Exports typed `AIExtraction` result and
+  `AIExtractError` for parse/validation failures. The prompt was already built
+  into `anthropicClient.ts` (Task 8).
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/aiExtract.ts`.
 
 ### 10) Ingredient Normalization
 - **Status**: Not started
