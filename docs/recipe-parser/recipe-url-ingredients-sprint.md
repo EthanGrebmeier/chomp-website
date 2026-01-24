@@ -130,11 +130,15 @@ returns normalized JSON with robust error handling and tests.
   auth.ts.
 
 ### 14) Integration Test Suite
-- **Status**: Not started
-- **Work**: Add integration tests covering success and key error paths. Use
-  local mocks for fetch + Anthropic and a stubbed Clerk verifier.
-- **Tests/Validation**: `pnpm test` (or equivalent) passes.
-- **Deliverable**: Test files in server test directory.
+- **Status**: Done
+- **Work**: Added integration tests covering success and key error paths. Uses
+  vitest with mocked dependencies for fetch, Anthropic client, and Clerk auth.
+  Tests cover: success with normalization, URL validation errors, fetch errors
+  (timeout, size, SSRF, content type), AI extraction errors (rate limit,
+  timeout, API errors), AI response parsing errors, markdown code block
+  handling, and authentication errors.
+- **Tests/Validation**: `pnpm test` passes (70 tests: 49 unit + 21 integration).
+- **Deliverable**: `server/recipe-url-ingredients/route.integration.test.ts`.
 
 ### 15) Demo Script / Validation Checklist
 - **Status**: Not started
