@@ -3,4 +3,4 @@
 2026-01-23 - Added Clerk auth middleware to verify Bearer tokens and attach userId.
 2026-01-23 - Switched auth middleware to `@clerk/express` clerkMiddleware/getAuth.
 2026-01-23 - Added rate limiting middleware (30 req/min per user) with memory store and RateLimitStore abstraction for future Redis.
-2026-01-23 - Added URL validation with SSRF protections: validates scheme, rejects localhost/private IPs (IPv4 + IPv6), and performs DNS resolution to block hostnames resolving to private addresses.
+2026-01-23 - Added URL validation with SSRF protections using `request-filtering-agent` library. Basic URL validation in urlValidation.ts, SSRF protection at fetch level via the library.

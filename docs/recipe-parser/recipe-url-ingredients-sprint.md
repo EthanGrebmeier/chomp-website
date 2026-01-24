@@ -43,13 +43,12 @@ returns normalized JSON with robust error handling and tests.
 
 ### 5) URL Validation + SSRF Protections
 - **Status**: Done
-- **Work**: Implemented comprehensive URL validation with SSRF protections.
-  Validates scheme (http/https only), rejects localhost variants, blocks private
-  IPv4 ranges (10.x, 172.16-31.x, 192.168.x, 127.x, etc.) and IPv6 private ranges
-  (::1, fe80::/10, fc00::/7, etc.). Performs DNS resolution and rejects hostnames
-  that resolve to private IPs.
+- **Work**: Basic URL validation (scheme check) in `urlValidation.ts`. SSRF
+  protection delegated to `request-filtering-agent` library which blocks private
+  IPs, handles DNS rebinding, and works at the HTTP agent level during fetch.
 - **Tests/Validation**: Types check via `pnpm tsc`.
-- **Deliverable**: `server/recipe-url-ingredients/urlValidation.ts`.
+- **Deliverable**: `server/recipe-url-ingredients/urlValidation.ts` +
+  `request-filtering-agent` dependency.
 
 ### 6) HTML Fetching with Limits
 - **Status**: Not started
