@@ -67,11 +67,14 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `server/recipe-url-ingredients/contentExtract.ts`.
 
 ### 8) Anthropic Client Setup
-- **Status**: Not started
-- **Work**: Create Anthropic client wrapper with injected API key, timeouts, and
-  request tracing.
-- **Tests/Validation**: Unit test client construction and error wrapping.
-- **Deliverable**: `anthropicClient.ts`.
+- **Status**: Done
+- **Work**: Created Anthropic client wrapper using `@anthropic-ai/sdk` with
+  configurable timeouts (default 30s), max retries, and request ID tracing.
+  Includes typed error handling that maps Anthropic API errors to domain-specific
+  error codes (api_error, authentication_error, rate_limit_error, timeout_error,
+  invalid_request_error). Includes extraction prompt for ingredient parsing.
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/anthropicClient.ts`.
 
 ### 9) Prompt + AI Response Parsing
 - **Status**: Not started

@@ -12,6 +12,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@clerk/express": "^1.7.65",
     "@mozilla/readability": "^0.6.0",
     "express": "^5.1.0",
