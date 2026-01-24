@@ -10,6 +10,19 @@ const aiIngredientSchema = z.object({
   quantity: z.number().nullable(),
   unit: z.string().nullable(),
   notes: z.string().nullable(),
+  category: z.enum([
+    'Produce',
+    'Deli',
+    'Dairy',
+    'Bakery',
+    'Frozen',
+    'Pantry',
+    'Beverages',
+    'Snacks',
+    'Health & Beauty',
+    'Household',
+    'Other',
+  ]),
 })
 
 const aiExtractionSchema = z.object({

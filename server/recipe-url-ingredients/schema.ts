@@ -20,11 +20,26 @@ export const recipeUrlIngredientsRequestSchema = z.object({
   url: urlSchema,
 })
 
+export const ingredientCategorySchema = z.enum([
+  'Produce',
+  'Deli',
+  'Dairy',
+  'Bakery',
+  'Frozen',
+  'Pantry',
+  'Beverages',
+  'Snacks',
+  'Health & Beauty',
+  'Household',
+  'Other',
+])
+
 export const recipeUrlIngredientSchema = z.object({
   name: z.string().trim().min(1, 'Ingredient name is required'),
   quantity: z.number().nullable(),
   unit: z.string().nullable(),
   notes: z.string().nullable(),
+  category: ingredientCategorySchema,
 })
 
 export const recipeUrlIngredientsResponseSchema = z.object({

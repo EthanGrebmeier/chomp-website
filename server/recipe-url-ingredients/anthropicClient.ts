@@ -98,7 +98,6 @@ export const createAnthropicClient = (config: AnthropicClientConfig) => {
         latencyMs,
       }
     } catch (error) {
-      const latencyMs = Date.now() - startTime
 
       if (error instanceof AnthropicClientError) {
         throw error
@@ -133,7 +132,8 @@ const buildExtractionPrompt = (content: string): string => {
       "name": "ingredient name (required)",
       "quantity": number or null,
       "unit": "string or null",
-      "notes": "string or null (e.g., 'minced', 'divided')"
+      "notes": "string or null (e.g., 'minced', 'divided')",
+      "category": "one of: Produce, Deli, Dairy, Bakery, Frozen, Pantry, Beverages, Snacks, Health & Beauty, Household, Other"
     }
   ]
 }
@@ -144,6 +144,19 @@ Rules:
 - Quantity should be a number (convert fractions: 1/2 = 0.5, 1 1/2 = 1.5)
 - Unit should be standardized (tbsp, tsp, cup, oz, lb, g, kg, ml, L, cloves, etc.)
 - Include preparation notes in the "notes" field, not in the name
+- Category must be exactly one of: Produce, Deli, Dairy, Bakery, Frozen, Pantry, Beverages, Snacks, Health & Beauty, Household, Other
+- Category guidance:
+  - Produce: fresh fruits, vegetables, herbs
+  - Deli: deli meats, prepared foods, cheeses from deli counter
+  - Dairy: milk, cheese, yogurt, butter, eggs, cream
+  - Bakery: bread, rolls, pastries, tortillas
+  - Frozen: frozen vegetables, frozen meals, ice cream
+  - Pantry: canned goods, dry goods, spices, oils, vinegar, pasta, rice, flour, sugar, condiments
+  - Beverages: drinks, juice, soda, coffee, tea
+  - Snacks: chips, crackers, cookies, candy
+  - Health & Beauty: non-food items for personal care
+  - Household: cleaning supplies, non-food household items
+  - Other: anything that doesn't fit the above categories
 
 Webpage content:
 ${content}`

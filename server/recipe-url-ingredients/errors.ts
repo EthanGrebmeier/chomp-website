@@ -76,7 +76,6 @@ export const recipeUrlIngredientsErrorHandler: ErrorRequestHandler = (
   err: Error,
   req: Request,
   res: Response,
-  _next: NextFunction
 ): void => {
   // Try to get request context for logging (may not exist if error happened before logging middleware)
   let requestId = 'unknown'

@@ -2,11 +2,25 @@ export type RecipeUrlIngredientsRequest = {
   url: string
 }
 
+export type IngredientCategory =
+  | 'Produce'
+  | 'Deli'
+  | 'Dairy'
+  | 'Bakery'
+  | 'Frozen'
+  | 'Pantry'
+  | 'Beverages'
+  | 'Snacks'
+  | 'Health & Beauty'
+  | 'Household'
+  | 'Other'
+
 export type RecipeUrlIngredient = {
   name: string
   quantity: number | null
   unit: string | null
   notes: string | null
+  category: IngredientCategory
 }
 
 export type RecipeUrlIngredientsResponse = {

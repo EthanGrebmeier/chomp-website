@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set your Clerk session token
-CLERK_TOKEN="eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDExMUFBQSIsImtpZCI6Imluc18zN3A1VzV3MGhyc3Q3ZllQWmlOd3BxaWZVb2QiLCJ0eXAiOiJKV1QifQ.eyJlbWFpbCI6ImV0aGFuZ3JlYm1laWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjE3NjkyMzUxMzgsImZ2YSI6WzI0LC0xXSwiaWF0IjoxNzY5MjM1MDc4LCJpc3MiOiJodHRwczovL2NsZXJrLmNob21wZ3JvY2VyeS5jb20iLCJqdGkiOiJlYzU4Y2VhYTMxM2ZiYTQzNjlkZCIsIm5iZiI6MTc2OTIzNTA2OCwic2lkIjoic2Vzc18zOGd1YU1FbEg1NUdyYlRkZ3JhRjhER1ltR0UiLCJzdHMiOiJhY3RpdmUiLCJzdWIiOiJ1c2VyXzM4UmIyUjVsQmc4YWZYWkNScnFDZURSNWEzTiIsInYiOjJ9.AApP8kO2c5SqtP65fzvdmXSbwfcGOt_WY0YiG3fa_ek6sO1XLb0aSsITDwRbjfnPE981jpNrh21lI5nVIYuStM8J7hPvNx56sewWkoO-QZoCkYu7u83GFb-u3a71JRsbIj6fZ2I2O2CjTntO6nAgb7nnI1AKhmmtFDlSijaMg_VL-Kikgjo1Y1P6fqyIt64ZjyIkvXQwbf9rKsqwuIPKoF3Nyg1jMQ0H8qeo2YtSnbRwctDo_pjiUapnph9FvpBf4c6-CPzFpqW8gwx14uYVONaELzGTVDU1fsca6DsO42zBRhP-Uhbe5qPJdVJRVoee3rceEnBufNd_MmitIWmPOg"
+CLERK_TOKEN="eyJhbGciOiJSUzI1NiIsImNhdCI6ImNsX0I3ZDRQRDExMUFBQSIsImtpZCI6Imluc18zN3A1VzV3MGhyc3Q3ZllQWmlOd3BxaWZVb2QiLCJ0eXAiOiJKV1QifQ.eyJlbWFpbCI6ImV0aGFuZ3JlYm1laWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjE3NjkyMzU4NjEsImZ2YSI6WzM2LC0xXSwiaWF0IjoxNzY5MjM1ODAxLCJpc3MiOiJodHRwczovL2NsZXJrLmNob21wZ3JvY2VyeS5jb20iLCJqdGkiOiIzMjA2YTQ1ZTZjN2RlNWQwNGIzNiIsIm5iZiI6MTc2OTIzNTc5MSwic2lkIjoic2Vzc18zOGd1YU1FbEg1NUdyYlRkZ3JhRjhER1ltR0UiLCJzdHMiOiJhY3RpdmUiLCJzdWIiOiJ1c2VyXzM4UmIyUjVsQmc4YWZYWkNScnFDZURSNWEzTiIsInYiOjJ9.on7zvKuIMYW2AoUBvw1qCIlrmB151Pn84bANj7mAMoNhSeJ6ZgqB_VpHFcW2HzclAkrLT-sOSY-3Omr6THhAasGaKMv7ZIReYYnVmiLaYcjkP7SYqu-bLEzzhdO0tJMZOTeu_Y8ImLrv2vX2UQH-z7oJZwICnUP6KzfRcD-YOvBITcIPCuJ3z9IOzZslzeSOKmqMUflxE0-eTDCzGS2ajy6rS9jaVoj50a3LtQDMJEX-lxyjhpBmw1enPKzs7-Dv_W9p_qdIaAzLoeQrk4kV2d72CYiUGe3tutjZ9DubUzSkZxCkRVS4fiWR5-UXKm7ha6eIyKWrkwjX34gnw7y5PQ"
 BASE_URL="${API_BASE_URL:-http://localhost:3000}"
 
 echo "=== Testing Recipe URL Ingredients API ==="
@@ -12,7 +12,7 @@ echo "1. Testing valid recipe URL..."
 curl -s -X POST "$BASE_URL/api/recipes/ingredients-from-url" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $CLERK_TOKEN" \
-  -d '{"url": "https://www.allrecipes.com/recipe/10813/best-chocolate-chip-cookies/"}' | jq .
+  -d '{"url": "https://easyhomecookingrecipes.net/sticky-garlic-chicken-noodles-recipe/"}' | jq .
 echo ""
 
 # Test 2: Missing URL
