@@ -25,12 +25,11 @@ returns normalized JSON with robust error handling and tests.
   `server/recipe-url-ingredients/schema.ts`.
 
 ### 3) Clerk Auth Middleware
-- **Status**: Not started
-- **Work**: Implement middleware to verify Clerk session token, attach `userId`,
-  and return standardized `401` on failure.
-- **Tests/Validation**: Unit test with mocked Clerk verification; integration
-  test with invalid token returns `401`.
-- **Deliverable**: `auth.ts` middleware + error mapping.
+- **Status**: Done
+- **Work**: Implemented `createClerkAuthMiddleware` to verify Bearer tokens with
+  Clerk, attach `userId`, and return standardized `401` on failure.
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/auth.ts`.
 
 ### 4) Rate Limiting Middleware
 - **Status**: Not started

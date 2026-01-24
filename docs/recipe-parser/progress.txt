@@ -1,2 +1,3 @@
 2026-01-23 - Added server config validation for Clerk + Anthropic env vars and fail-fast startup guard.
 2026-01-23 - Added recipe URL ingredients request/response/error types and Zod schemas for validation.
+2026-01-23 - Added Clerk auth middleware to verify Bearer tokens and attach userId.
