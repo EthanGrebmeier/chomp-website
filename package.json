@@ -12,7 +12,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@clerk/backend": "^2.29.5",
+    "@clerk/express": "^1.7.65",
     "express": "^5.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

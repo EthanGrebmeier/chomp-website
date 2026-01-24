@@ -26,8 +26,9 @@ returns normalized JSON with robust error handling and tests.
 
 ### 3) Clerk Auth Middleware
 - **Status**: Done
-- **Work**: Implemented `createClerkAuthMiddleware` to verify Bearer tokens with
-  Clerk, attach `userId`, and return standardized `401` on failure.
+- **Work**: Implemented `createClerkAuthMiddleware` using `@clerk/express`
+  `clerkMiddleware()` + `getAuth()` to attach `userId` and return standardized
+  `401` on failure.
 - **Tests/Validation**: Types check via `pnpm tsc`.
 - **Deliverable**: `server/recipe-url-ingredients/auth.ts`.
 
