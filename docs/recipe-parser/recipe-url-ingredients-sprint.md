@@ -42,11 +42,14 @@ returns normalized JSON with robust error handling and tests.
 - **Deliverable**: `server/recipe-url-ingredients/rateLimit.ts`.
 
 ### 5) URL Validation + SSRF Protections
-- **Status**: Not started
-- **Work**: Validate scheme, reject localhost/private IPs, and disallow file
-  URLs. Resolve DNS and reject private ranges including IPv6.
-- **Tests/Validation**: Unit tests for SSRF edge cases.
-- **Deliverable**: `urlValidation.ts` with comprehensive validation.
+- **Status**: Done
+- **Work**: Implemented comprehensive URL validation with SSRF protections.
+  Validates scheme (http/https only), rejects localhost variants, blocks private
+  IPv4 ranges (10.x, 172.16-31.x, 192.168.x, 127.x, etc.) and IPv6 private ranges
+  (::1, fe80::/10, fc00::/7, etc.). Performs DNS resolution and rejects hostnames
+  that resolve to private IPs.
+- **Tests/Validation**: Types check via `pnpm tsc`.
+- **Deliverable**: `server/recipe-url-ingredients/urlValidation.ts`.
 
 ### 6) HTML Fetching with Limits
 - **Status**: Not started
