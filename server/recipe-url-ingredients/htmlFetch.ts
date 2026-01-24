@@ -1,7 +1,8 @@
 import got, { HTTPError, TimeoutError } from 'got'
-import { Agent as HttpAgent } from 'node:http'
-import { Agent as HttpsAgent } from 'node:https'
-import { createFilteredHttpAgent, createFilteredHttpsAgent } from 'request-filtering-agent'
+import {
+  RequestFilteringHttpAgent,
+  RequestFilteringHttpsAgent,
+} from 'request-filtering-agent'
 
 export type HtmlFetchSuccess = {
   ok: true
@@ -40,8 +41,8 @@ const USER_AGENT =
   'Mozilla/5.0 (compatible; ChompRecipeParser/1.0; +https://chompgrocery.com)'
 
 // Create SSRF-protected agents
-const httpAgent = createFilteredHttpAgent() as HttpAgent
-const httpsAgent = createFilteredHttpsAgent() as HttpsAgent
+const httpAgent = new RequestFilteringHttpAgent()
+const httpsAgent = new RequestFilteringHttpsAgent()
 
 /**
  * Fetch HTML from a URL with security protections and limits.

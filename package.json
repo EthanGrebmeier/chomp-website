@@ -17,6 +17,7 @@
     "@anthropic-ai/sdk": "^0.71.2",
     "@clerk/express": "^1.7.65",
     "@mozilla/readability": "^0.6.0",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "got": "^14.6.6",
     "linkedom": "^0.18.12",

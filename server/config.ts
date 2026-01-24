@@ -2,6 +2,7 @@ export type ServerConfig = {
   port: number
   clerkSecretKey: string
   anthropicApiKey: string
+  authBypass: boolean
 }
 
 const readRequiredEnv = (name: string, missing: string[]) => {
@@ -28,7 +29,12 @@ export const loadConfig = (): ServerConfig => {
   const errors: string[] = []
   const missing: string[] = []
 
-  const clerkSecretKey = readRequiredEnv('CLERK_SECRET_KEY', missing)
+  const authBypass = process.env.AUTH_BYPASS === 'true'
+
+  // Clerk secret key is only required when auth bypass is disabled
+  const clerkSecretKey = authBypass
+    ? (process.env.CLERK_SECRET_KEY?.trim() ?? '')
+    : readRequiredEnv('CLERK_SECRET_KEY', missing)
   const anthropicApiKey = readRequiredEnv('ANTHROPIC_API_KEY', missing)
   const port = parsePort(process.env.PORT, errors)
 
@@ -44,5 +50,6 @@ export const loadConfig = (): ServerConfig => {
     port,
     clerkSecretKey,
     anthropicApiKey,
+    authBypass,
   }
 }

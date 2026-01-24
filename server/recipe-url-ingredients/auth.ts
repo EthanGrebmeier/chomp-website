@@ -9,26 +9,54 @@ const buildUnauthorizedResponse = (): RecipeUrlIngredientsErrorResponse => ({
   },
 })
 
-export const createClerkAuthMiddleware = (): RequestHandler[] => [
-  clerkMiddleware(),
-  (req, res, next) => {
-    const { isAuthenticated, userId, sessionId } = getAuth(req)
+type AuthMiddlewareOptions = {
+  authBypass?: boolean
+}
 
-    if (!isAuthenticated || !userId) {
-      res.status(401).json(buildUnauthorizedResponse())
-      return
-    }
+export const createClerkAuthMiddleware = (
+  options: AuthMiddlewareOptions = {}
+): RequestHandler[] => {
+  const { authBypass = false } = options
 
-    res.locals.auth = {
-      userId,
-      sessionId: sessionId ?? null,
-    }
+  // When auth bypass is enabled, skip Clerk entirely and use a placeholder user
+  if (authBypass) {
+    return [
+      (req, res, next) => {
+        res.locals.auth = {
+          userId: 'bypass-user',
+          sessionId: null,
+        }
 
-    // Update request context with authenticated user ID for logging
-    if (req.ctx) {
-      req.ctx.userId = userId
-    }
+        if (req.ctx) {
+          req.ctx.userId = 'bypass-user'
+        }
 
-    next()
-  },
-]
+        next()
+      },
+    ]
+  }
+
+  return [
+    clerkMiddleware(),
+    (req, res, next) => {
+      const { isAuthenticated, userId, sessionId } = getAuth(req)
+
+      if (!isAuthenticated || !userId) {
+        res.status(401).json(buildUnauthorizedResponse())
+        return
+      }
+
+      res.locals.auth = {
+        userId,
+        sessionId: sessionId ?? null,
+      }
+
+      // Update request context with authenticated user ID for logging
+      if (req.ctx) {
+        req.ctx.userId = userId
+      }
+
+      next()
+    },
+  ]
+}

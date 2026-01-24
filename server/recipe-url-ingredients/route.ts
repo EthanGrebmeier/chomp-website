@@ -268,9 +268,11 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
  * Returns an array of handlers to be used with app.post().
  */
 export const createRecipeUrlIngredientsRoute = (): RequestHandler[] => {
+  const config = loadConfig()
+
   return [
     createLoggingMiddleware(),
-    ...createClerkAuthMiddleware(),
+    ...createClerkAuthMiddleware({ authBypass: config.authBypass }),
     createRateLimitMiddleware(),
     extractIngredientsHandler,
   ]

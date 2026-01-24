@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -7,9 +8,11 @@ import { recipeUrlIngredientsErrorHandler } from './recipe-url-ingredients/error
 
 const app = express()
 let port = 3000
+let authBypass = false
 try {
   const config = loadConfig()
   port = config.port
+  authBypass = config.authBypass
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error)
   console.error(message)
@@ -91,4 +94,7 @@ app.get(/.*/, (_req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`)
+  if (authBypass) {
+    console.warn('⚠️  AUTH_BYPASS is enabled - authentication is disabled!')
+  }
 })

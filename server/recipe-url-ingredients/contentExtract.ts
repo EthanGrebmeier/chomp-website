@@ -19,16 +19,163 @@ export type ContentExtractError = {
 export type ContentExtractResult = ContentExtractSuccess | ContentExtractError
 
 /**
- * Extract main content from HTML using Mozilla Readability.
+ * Schema.org Recipe data extracted from JSON-LD.
+ */
+type JsonLdRecipe = {
+  name: string | null
+  recipeYield: string | null
+  recipeIngredient: string[]
+}
+
+/**
+ * Extract Schema.org Recipe data from JSON-LD scripts in the document.
+ * Handles both top-level Recipe objects and nested @graph arrays.
  *
- * Parses HTML, removes scripts/styles/ads, and extracts the main article content.
- * Falls back to cleaned body text if Readability fails.
+ * @param document - The parsed HTML document
+ * @returns Recipe data if found, null otherwise
+ */
+const extractJsonLdRecipe = (document: Document): JsonLdRecipe | null => {
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]')
+
+  for (const script of scripts) {
+    const content = script.textContent
+    if (!content) continue
+
+    try {
+      const data = JSON.parse(content)
+      const recipe = findRecipeInJsonLd(data)
+      if (recipe) return recipe
+    } catch {
+      // Invalid JSON, skip this script
+      continue
+    }
+  }
+
+  return null
+}
+
+/**
+ * Recursively search for a Recipe object in JSON-LD data.
+ * Handles @graph arrays and nested structures.
+ */
+const findRecipeInJsonLd = (data: unknown): JsonLdRecipe | null => {
+  if (!data || typeof data !== 'object') return null
+
+  // Handle arrays (including @graph)
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const recipe = findRecipeInJsonLd(item)
+      if (recipe) return recipe
+    }
+    return null
+  }
+
+  const obj = data as Record<string, unknown>
+
+  // Check if this object is a Recipe
+  const type = obj['@type']
+  const isRecipe =
+    type === 'Recipe' ||
+    (Array.isArray(type) && type.includes('Recipe'))
+
+  if (isRecipe) {
+    return parseRecipeObject(obj)
+  }
+
+  // Check @graph array
+  if (obj['@graph'] && Array.isArray(obj['@graph'])) {
+    return findRecipeInJsonLd(obj['@graph'])
+  }
+
+  return null
+}
+
+/**
+ * Parse a Recipe object and extract relevant fields.
+ */
+const parseRecipeObject = (obj: Record<string, unknown>): JsonLdRecipe | null => {
+  // Extract recipeIngredient - required for a valid recipe
+  const ingredients = obj['recipeIngredient']
+  if (!ingredients || !Array.isArray(ingredients)) {
+    return null
+  }
+
+  // Filter and normalize ingredients to strings
+  const recipeIngredient = ingredients
+    .filter((item): item is string => typeof item === 'string')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+
+  if (recipeIngredient.length === 0) {
+    return null
+  }
+
+  // Extract name
+  const name = typeof obj['name'] === 'string' ? obj['name'].trim() : null
+
+  // Extract recipeYield (can be string or array)
+  let recipeYield: string | null = null
+  const yieldValue = obj['recipeYield']
+  if (typeof yieldValue === 'string') {
+    recipeYield = yieldValue.trim()
+  } else if (Array.isArray(yieldValue) && yieldValue.length > 0) {
+    // Take the first yield value
+    const first = yieldValue[0]
+    if (typeof first === 'string') {
+      recipeYield = first.trim()
+    }
+  }
+
+  return { name, recipeYield, recipeIngredient }
+}
+
+/**
+ * Format JSON-LD recipe data as structured text for AI extraction.
+ */
+const formatJsonLdRecipeAsContent = (recipe: JsonLdRecipe): string => {
+  const lines: string[] = []
+
+  if (recipe.name) {
+    lines.push(`Recipe Name: ${recipe.name}`)
+  }
+
+  if (recipe.recipeYield) {
+    lines.push(`Servings: ${recipe.recipeYield}`)
+  }
+
+  lines.push('')
+  lines.push('Ingredients:')
+
+  for (const ingredient of recipe.recipeIngredient) {
+    lines.push(`- ${ingredient}`)
+  }
+
+  return lines.join('\n')
+}
+
+/**
+ * Extract main content from HTML, prioritizing JSON-LD Recipe data.
+ *
+ * First attempts to extract structured Recipe data from JSON-LD scripts.
+ * Falls back to Mozilla Readability for general content extraction.
  */
 export const extractContent = (html: string, url: string): ContentExtractResult => {
   try {
     const { document } = parseHTML(html)
 
-    // Remove unwanted elements before extraction
+    // Try JSON-LD Recipe extraction first (before removing scripts!)
+    const jsonLdRecipe = extractJsonLdRecipe(document)
+    if (jsonLdRecipe) {
+      const content = formatJsonLdRecipeAsContent(jsonLdRecipe)
+      return {
+        ok: true,
+        title: jsonLdRecipe.name,
+        content,
+        byline: null,
+      }
+    }
+
+    // Remove unwanted elements before Readability extraction
     removeUnwantedElements(document)
 
     // Clone document for Readability (it mutates the DOM)
