@@ -233,6 +233,7 @@ describe('normalizeIngredient', () => {
       quantity: 3,
       unit: 'Cloves',
       notes: '  minced  ',
+      category: 'Produce',
     }
 
     expect(normalizeIngredient(input)).toEqual({
@@ -240,6 +241,7 @@ describe('normalizeIngredient', () => {
       quantity: 3,
       unit: 'clove',
       notes: 'minced',
+      category: 'Produce',
     })
   })
 
@@ -249,6 +251,7 @@ describe('normalizeIngredient', () => {
       quantity: null,
       unit: null,
       notes: null,
+      category: 'Pantry',
     }
 
     expect(normalizeIngredient(input)).toEqual({
@@ -256,6 +259,7 @@ describe('normalizeIngredient', () => {
       quantity: null,
       unit: null,
       notes: null,
+      category: 'Pantry',
     })
   })
 
@@ -265,6 +269,7 @@ describe('normalizeIngredient', () => {
       quantity: 0,
       unit: 'tsp',
       notes: 'to taste',
+      category: 'Pantry',
     }
 
     expect(normalizeIngredient(input)).toEqual({
@@ -272,6 +277,7 @@ describe('normalizeIngredient', () => {
       quantity: 0,
       unit: 'tsp',
       notes: 'to taste',
+      category: 'Pantry',
     })
   })
 
@@ -281,6 +287,7 @@ describe('normalizeIngredient', () => {
       quantity: 0.5,
       unit: 'cup',
       notes: 'softened',
+      category: 'Dairy',
     }
 
     expect(normalizeIngredient(input)).toEqual({
@@ -288,6 +295,7 @@ describe('normalizeIngredient', () => {
       quantity: 0.5,
       unit: 'cup',
       notes: 'softened',
+      category: 'Dairy',
     })
   })
 
@@ -297,6 +305,7 @@ describe('normalizeIngredient', () => {
       quantity: 2,
       unit: '',
       notes: 'large',
+      category: 'Dairy',
     }
 
     expect(normalizeIngredient(input)).toEqual({
@@ -304,6 +313,7 @@ describe('normalizeIngredient', () => {
       quantity: 2,
       unit: null,
       notes: 'large',
+      category: 'Dairy',
     })
   })
 
@@ -313,6 +323,7 @@ describe('normalizeIngredient', () => {
       quantity: 2,
       unit: 'cups',
       notes: '',
+      category: 'Pantry',
     }
 
     expect(normalizeIngredient(input)).toEqual({
@@ -320,6 +331,25 @@ describe('normalizeIngredient', () => {
       quantity: 2,
       unit: 'cup',
       notes: null,
+      category: 'Pantry',
+    })
+  })
+
+  it('preserves category through normalization', () => {
+    const input: AIIngredient = {
+      name: 'Ice Cream',
+      quantity: 1,
+      unit: 'pint',
+      notes: null,
+      category: 'Frozen',
+    }
+
+    expect(normalizeIngredient(input)).toEqual({
+      name: 'ice cream',
+      quantity: 1,
+      unit: 'pint',
+      notes: null,
+      category: 'Frozen',
     })
   })
 })
@@ -330,9 +360,9 @@ describe('normalizeExtraction', () => {
       recipeName: '  Spaghetti   Pomodoro  ',
       servings: '  4  ',
       ingredients: [
-        { name: '  Spaghetti  ', quantity: 12, unit: 'OUNCES', notes: null },
-        { name: 'Olive Oil', quantity: 2, unit: 'tablespoons', notes: '  extra virgin  ' },
-        { name: '  GARLIC  ', quantity: 3, unit: 'cloves', notes: 'minced' },
+        { name: '  Spaghetti  ', quantity: 12, unit: 'OUNCES', notes: null, category: 'Pantry' },
+        { name: 'Olive Oil', quantity: 2, unit: 'tablespoons', notes: '  extra virgin  ', category: 'Pantry' },
+        { name: '  GARLIC  ', quantity: 3, unit: 'cloves', notes: 'minced', category: 'Produce' },
       ],
     }
 
@@ -343,9 +373,9 @@ describe('normalizeExtraction', () => {
       recipeName: 'Spaghetti Pomodoro',
       servings: '4',
       ingredients: [
-        { name: 'spaghetti', quantity: 12, unit: 'oz', notes: null },
-        { name: 'olive oil', quantity: 2, unit: 'tbsp', notes: 'extra virgin' },
-        { name: 'garlic', quantity: 3, unit: 'clove', notes: 'minced' },
+        { name: 'spaghetti', quantity: 12, unit: 'oz', notes: null, category: 'Pantry' },
+        { name: 'olive oil', quantity: 2, unit: 'tbsp', notes: 'extra virgin', category: 'Pantry' },
+        { name: 'garlic', quantity: 3, unit: 'clove', notes: 'minced', category: 'Produce' },
       ],
     })
   })
@@ -354,7 +384,7 @@ describe('normalizeExtraction', () => {
     const extraction: AIExtraction = {
       recipeName: null,
       servings: null,
-      ingredients: [{ name: 'Flour', quantity: 1, unit: 'cup', notes: null }],
+      ingredients: [{ name: 'Flour', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
     }
 
     const result = normalizeExtraction(extraction, 'https://example.com')
@@ -363,7 +393,7 @@ describe('normalizeExtraction', () => {
       sourceUrl: 'https://example.com',
       recipeName: null,
       servings: null,
-      ingredients: [{ name: 'flour', quantity: 1, unit: 'cup', notes: null }],
+      ingredients: [{ name: 'flour', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
     })
   })
 
@@ -371,7 +401,7 @@ describe('normalizeExtraction', () => {
     const extraction: AIExtraction = {
       recipeName: '   ',
       servings: '',
-      ingredients: [{ name: 'Sugar', quantity: 1, unit: 'tbsp', notes: null }],
+      ingredients: [{ name: 'Sugar', quantity: 1, unit: 'tbsp', notes: null, category: 'Pantry' }],
     }
 
     const result = normalizeExtraction(extraction, 'https://example.com')
@@ -380,7 +410,7 @@ describe('normalizeExtraction', () => {
       sourceUrl: 'https://example.com',
       recipeName: null,
       servings: null,
-      ingredients: [{ name: 'sugar', quantity: 1, unit: 'tbsp', notes: null }],
+      ingredients: [{ name: 'sugar', quantity: 1, unit: 'tbsp', notes: null, category: 'Pantry' }],
     })
   })
 

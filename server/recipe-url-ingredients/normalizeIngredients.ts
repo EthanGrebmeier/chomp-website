@@ -149,6 +149,7 @@ export const normalizeIngredient = (ingredient: AIIngredient): RecipeUrlIngredie
     quantity: ingredient.quantity,
     unit: normalizeUnit(ingredient.unit),
     notes: normalizeNotes(ingredient.notes),
+    category: ingredient.category,
   }
 }
 
