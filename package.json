@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n client,server -c blue,green \"vite\" \"tsx --watch server/index.ts\"",
+    "dev:client": "vite",
     "dev:server": "tsx --watch server/index.ts",
     "build": "vite build && tsup server/index.ts --format esm --out-dir server/dist",
     "start": "node server/dist/index.js",
@@ -36,6 +37,7 @@
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "@vitejs/plugin-react": "^5.0.2",
+    "concurrently": "^9.2.1",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^6.0.0",
