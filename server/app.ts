@@ -8,6 +8,14 @@ import { createShareRoutes } from './shareRoutes.js'
 const getPublicPaths = () => {
   const currentFile = fileURLToPath(import.meta.url)
   const currentDir = path.dirname(currentFile)
+  const isBuiltServer = currentDir.endsWith(path.join('server', 'dist'))
+
+  if (isBuiltServer) {
+    return {
+      distPath: path.resolve(currentDir, '../../dist'),
+      publicPath: path.resolve(currentDir, '../../public'),
+    }
+  }
 
   return {
     distPath: path.resolve(currentDir, '../dist'),
