@@ -1,3 +1,4 @@
+import { titleCase } from 'title-case'
 import type { AIExtraction, AIIngredient } from './aiExtract.js'
 import type { RecipeUrlIngredient, RecipeUrlIngredientsResponse } from './types.js'
 
@@ -121,10 +122,12 @@ export const normalizeUnit = (unit: string | null): string | null => {
 
 /**
  * Normalizes an ingredient name.
- * Trims whitespace, collapses multiple spaces, and converts to lowercase.
+ * Trims whitespace, collapses multiple spaces, and applies title case
+ * (capitalizes major words, keeps small words like "of", "and", "the" lowercase).
  */
 export const normalizeIngredientName = (name: string): string => {
-  return normalizeWhitespace(name).toLowerCase()
+  const cleaned = normalizeWhitespace(name).toLowerCase()
+  return titleCase(cleaned)
 }
 
 /**

@@ -142,21 +142,33 @@ describe('normalizeUnit', () => {
 })
 
 describe('normalizeIngredientName', () => {
-  it('converts to lowercase', () => {
-    expect(normalizeIngredientName('Garlic')).toBe('garlic')
-    expect(normalizeIngredientName('OLIVE OIL')).toBe('olive oil')
+  it('applies title case to single words', () => {
+    expect(normalizeIngredientName('garlic')).toBe('Garlic')
+    expect(normalizeIngredientName('Garlic')).toBe('Garlic')
+    expect(normalizeIngredientName('GARLIC')).toBe('Garlic')
+  })
+
+  it('applies title case to multi-word names', () => {
+    expect(normalizeIngredientName('OLIVE OIL')).toBe('Olive Oil')
+    expect(normalizeIngredientName('red wine vinegar')).toBe('Red Wine Vinegar')
+  })
+
+  it('keeps small words lowercase', () => {
+    expect(normalizeIngredientName('cream of wheat')).toBe('Cream of Wheat')
+    expect(normalizeIngredientName('CHIPOTLE PEPPERS IN ADOBO')).toBe('Chipotle Peppers in Adobo')
+    expect(normalizeIngredientName('black and white pepper')).toBe('Black and White Pepper')
   })
 
   it('trims whitespace', () => {
-    expect(normalizeIngredientName('  garlic  ')).toBe('garlic')
+    expect(normalizeIngredientName('  garlic  ')).toBe('Garlic')
   })
 
   it('collapses multiple spaces', () => {
-    expect(normalizeIngredientName('olive   oil')).toBe('olive oil')
+    expect(normalizeIngredientName('olive   oil')).toBe('Olive Oil')
   })
 
   it('handles mixed case and spacing', () => {
-    expect(normalizeIngredientName('  Fresh   Basil   Leaves  ')).toBe('fresh basil leaves')
+    expect(normalizeIngredientName('  Fresh   Basil   Leaves  ')).toBe('Fresh Basil Leaves')
   })
 })
 
@@ -237,7 +249,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'garlic',
+      name: 'Garlic',
       quantity: 3,
       unit: 'clove',
       notes: 'minced',
@@ -255,7 +267,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'salt',
+      name: 'Salt',
       quantity: null,
       unit: null,
       notes: null,
@@ -273,7 +285,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'pepper',
+      name: 'Pepper',
       quantity: 0,
       unit: 'tsp',
       notes: 'to taste',
@@ -291,7 +303,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'butter',
+      name: 'Butter',
       quantity: 0.5,
       unit: 'cup',
       notes: 'softened',
@@ -309,7 +321,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'eggs',
+      name: 'Eggs',
       quantity: 2,
       unit: null,
       notes: 'large',
@@ -327,7 +339,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'flour',
+      name: 'Flour',
       quantity: 2,
       unit: 'cup',
       notes: null,
@@ -345,7 +357,7 @@ describe('normalizeIngredient', () => {
     }
 
     expect(normalizeIngredient(input)).toEqual({
-      name: 'ice cream',
+      name: 'Ice Cream',
       quantity: 1,
       unit: 'pint',
       notes: null,
@@ -373,9 +385,9 @@ describe('normalizeExtraction', () => {
       recipeName: 'Spaghetti Pomodoro',
       servings: '4',
       ingredients: [
-        { name: 'spaghetti', quantity: 12, unit: 'oz', notes: null, category: 'Pantry' },
-        { name: 'olive oil', quantity: 2, unit: 'tbsp', notes: 'extra virgin', category: 'Pantry' },
-        { name: 'garlic', quantity: 3, unit: 'clove', notes: 'minced', category: 'Produce' },
+        { name: 'Spaghetti', quantity: 12, unit: 'oz', notes: null, category: 'Pantry' },
+        { name: 'Olive Oil', quantity: 2, unit: 'tbsp', notes: 'extra virgin', category: 'Pantry' },
+        { name: 'Garlic', quantity: 3, unit: 'clove', notes: 'minced', category: 'Produce' },
       ],
     })
   })
@@ -393,7 +405,7 @@ describe('normalizeExtraction', () => {
       sourceUrl: 'https://example.com',
       recipeName: null,
       servings: null,
-      ingredients: [{ name: 'flour', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
+      ingredients: [{ name: 'Flour', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
     })
   })
 
@@ -410,7 +422,7 @@ describe('normalizeExtraction', () => {
       sourceUrl: 'https://example.com',
       recipeName: null,
       servings: null,
-      ingredients: [{ name: 'sugar', quantity: 1, unit: 'tbsp', notes: null, category: 'Pantry' }],
+      ingredients: [{ name: 'Sugar', quantity: 1, unit: 'tbsp', notes: null, category: 'Pantry' }],
     })
   })
 
