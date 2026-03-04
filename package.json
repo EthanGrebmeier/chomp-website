@@ -19,6 +19,7 @@
     "@anthropic-ai/sdk": "^0.71.2",
     "@clerk/express": "^1.7.65",
     "@mozilla/readability": "^0.6.0",
+    "@tailwindcss/vite": "^4.1.18",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "got": "^14.6.6",
@@ -26,6 +27,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "request-filtering-agent": "^3.2.0",
+    "tailwindcss": "^4.1.18",
     "title-case": "^4.3.2",
     "zod": "^4.3.6"
   },

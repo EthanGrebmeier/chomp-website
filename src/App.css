@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 .app {
   display: grid;
   gap: 2rem;
