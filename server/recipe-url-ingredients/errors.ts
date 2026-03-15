@@ -76,7 +76,11 @@ export const recipeUrlIngredientsErrorHandler: ErrorRequestHandler = (
   err: Error,
   req: Request,
   res: Response,
+  next: NextFunction,
 ): void => {
+  // Express recognizes error middleware by 4 args; this keeps the signature explicit.
+  void next
+
   // Try to get request context for logging (may not exist if error happened before logging middleware)
   let requestId = 'unknown'
   try {

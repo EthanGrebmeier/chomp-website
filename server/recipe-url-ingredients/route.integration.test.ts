@@ -89,9 +89,9 @@ const validAIResponse = JSON.stringify({
   recipeName: 'Simple Pasta',
   servings: '4',
   ingredients: [
-    { name: 'Flour', quantity: 2, unit: 'cups', notes: null },
-    { name: 'Eggs', quantity: 3, unit: null, notes: null },
-    { name: 'Salt', quantity: 1, unit: 'tsp', notes: null },
+    { name: 'Flour', quantity: 2, unit: 'cups', notes: null, category: 'Pantry' },
+    { name: 'Eggs', quantity: 3, unit: null, notes: null, category: 'Dairy' },
+    { name: 'Salt', quantity: 1, unit: 'tsp', notes: null, category: 'Pantry' },
   ],
 })
 
@@ -150,9 +150,9 @@ describe('POST /api/recipes/ingredients-from-url', () => {
         recipeName: 'Simple Pasta',
         servings: '4',
         ingredients: [
-          { name: 'flour', quantity: 2, unit: 'cup', notes: null },
-          { name: 'eggs', quantity: 3, unit: null, notes: null },
-          { name: 'salt', quantity: 1, unit: 'tsp', notes: null },
+          { name: 'Flour', quantity: 2, unit: 'cup', notes: null, category: 'Pantry' },
+          { name: 'Eggs', quantity: 3, unit: null, notes: null, category: 'Dairy' },
+          { name: 'Salt', quantity: 1, unit: 'tsp', notes: null, category: 'Pantry' },
         ],
       })
     })
@@ -169,7 +169,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
         content: JSON.stringify({
           recipeName: null,
           servings: null,
-          ingredients: [{ name: 'Sugar', quantity: 1, unit: 'cup', notes: null }],
+          ingredients: [{ name: 'Sugar', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
         }),
         usage: { inputTokens: 100, outputTokens: 30 },
         model: 'claude-sonnet-4-20250514',

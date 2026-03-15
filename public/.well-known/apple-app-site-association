@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "K8MV5DQ32C.com.ethangrebmeier.chomp",
-        "paths": ["/join-list/*"]
+        "paths": ["/join-list/*", "/verify-email-link", "/verify-email-link/*"]
       }
     ]
   },

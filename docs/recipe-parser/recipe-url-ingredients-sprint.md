@@ -60,9 +60,9 @@ returns normalized JSON with robust error handling and tests.
 
 ### 7) Main Content Extraction
 - **Status**: Done
-- **Work**: Implemented content extraction using `@mozilla/readability` and
-  `linkedom`. Removes unwanted elements (scripts, styles, nav, ads), extracts
-  article content via Readability, falls back to cleaned body text if needed.
+- **Work**: Implemented content extraction using `defuddle/node` and
+  `linkedom`. Prioritizes JSON-LD Recipe extraction, then falls back to
+  Defuddle content extraction, and finally cleaned body text if needed.
 - **Tests/Validation**: Types check via `pnpm tsc`.
 - **Deliverable**: `server/recipe-url-ingredients/contentExtract.ts`.
 

@@ -1,4 +1,5 @@
-import { Readability } from '@mozilla/readability'
+import { Defuddle } from 'defuddle/node'
+import { JSDOM } from 'jsdom'
 import { parseHTML } from 'linkedom'
 
 export type ContentExtractSuccess = {
@@ -157,9 +158,12 @@ const formatJsonLdRecipeAsContent = (recipe: JsonLdRecipe): string => {
  * Extract main content from HTML, prioritizing JSON-LD Recipe data.
  *
  * First attempts to extract structured Recipe data from JSON-LD scripts.
- * Falls back to Mozilla Readability for general content extraction.
+ * Falls back to Defuddle for general content extraction.
  */
-export const extractContent = (html: string, url: string): ContentExtractResult => {
+export const extractContent = async (
+  html: string,
+  url: string
+): Promise<ContentExtractResult> => {
   try {
     const { document } = parseHTML(html)
 
@@ -175,26 +179,24 @@ export const extractContent = (html: string, url: string): ContentExtractResult 
       }
     }
 
-    // Remove unwanted elements before Readability extraction
-    removeUnwantedElements(document)
+    // Try Defuddle extraction
+    const dom = new JSDOM(html, { url })
+    const article = await Defuddle(dom, url, {
+      markdown: true,
+      removeImages: true,
+    })  
 
-    // Clone document for Readability (it mutates the DOM)
-    const docClone = document.cloneNode(true) as typeof document
-
-    // Try Readability extraction
-    const reader = new Readability(docClone, { url })
-    const article = reader.parse()
-
-    if (article && article.textContent && article.textContent.trim().length > 0) {
+    if (article.content) {
       return {
         ok: true,
-        title: article.title || null,
-        content: article.textContent.trim(),
-        byline: article.byline || null,
+        title: article.title?.trim() || null,
+        content: article.content,
+        byline: article.author?.trim() || null,
       }
     }
 
     // Fallback: extract cleaned body text
+    removeUnwantedElements(document)
     const bodyText = extractBodyText(document)
     if (bodyText && bodyText.trim().length > 0) {
       return {
@@ -219,7 +221,6 @@ export const extractContent = (html: string, url: string): ContentExtractResult 
     }
   }
 }
-
 /**
  * Remove scripts, styles, and other non-content elements.
  */

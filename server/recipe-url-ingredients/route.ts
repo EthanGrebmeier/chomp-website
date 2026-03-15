@@ -192,7 +192,7 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
   }
 
   // Extract main content from HTML
-  const contentResult = extractContent(fetchResult.html, fetchResult.finalUrl)
+  const contentResult = await extractContent(fetchResult.html, fetchResult.finalUrl)
   if (!contentResult.ok) {
     const contentError = contentResult as ContentExtractError
     const errorCode = mapContentErrorCode(contentError.code)
