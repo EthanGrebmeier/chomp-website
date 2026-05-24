@@ -67,7 +67,7 @@ export const createAnthropicClient = (config: AnthropicClientConfig) => {
     try {
       const response = await client.messages.create({
         model: MODEL,
-        max_tokens: 2048,
+        max_tokens: 8000,
         messages: [
           {
             role: 'user',
@@ -158,12 +158,126 @@ Rules:
   - Household: cleaning supplies, non-food household items
   - Other: anything that doesn't fit the above categories
 
+Few-shot examples (follow this behavior exactly):
+
+Example 1
+Input text:
+"Classic guacamole serves 4. Ingredients: 2 ripe avocados, 1/2 red onion finely diced, 2 tbsp lime juice, 1 clove garlic minced, 1 tsp kosher salt."
+
+Output JSON:
+{
+  "recipeName": "Classic guacamole",
+  "servings": "4",
+  "ingredients": [
+    {
+      "name": "avocados",
+      "quantity": 2,
+      "unit": null,
+      "notes": "ripe",
+      "category": "Produce"
+    },
+    {
+      "name": "red onion",
+      "quantity": 0.5,
+      "unit": null,
+      "notes": "finely diced",
+      "category": "Produce"
+    },
+    {
+      "name": "lime juice",
+      "quantity": 2,
+      "unit": "tbsp",
+      "notes": null,
+      "category": "Produce"
+    },
+    {
+      "name": "garlic",
+      "quantity": 1,
+      "unit": "clove",
+      "notes": "minced",
+      "category": "Produce"
+    },
+    {
+      "name": "kosher salt",
+      "quantity": 1,
+      "unit": "tsp",
+      "notes": null,
+      "category": "Pantry"
+    }
+  ]
+}
+
+Example 2
+Input text:
+"Baked mac and cheese (serves 6): 1 lb elbow macaroni, 2 cups shredded cheddar cheese divided, 3 tbsp butter melted, 2 cups whole milk, 1/4 cup all-purpose flour, 1 tsp paprika."
+
+Output JSON:
+{
+  "recipeName": "Baked mac and cheese",
+  "servings": "6",
+  "ingredients": [
+    {
+      "name": "elbow macaroni",
+      "quantity": 1,
+      "unit": "lb",
+      "notes": null,
+      "category": "Pantry"
+    },
+    {
+      "name": "cheddar cheese",
+      "quantity": 2,
+      "unit": "cup",
+      "notes": "shredded, divided",
+      "category": "Dairy"
+    },
+    {
+      "name": "butter",
+      "quantity": 3,
+      "unit": "tbsp",
+      "notes": "melted",
+      "category": "Dairy"
+    },
+    {
+      "name": "whole milk",
+      "quantity": 2,
+      "unit": "cup",
+      "notes": null,
+      "category": "Dairy"
+    },
+    {
+      "name": "all-purpose flour",
+      "quantity": 0.25,
+      "unit": "cup",
+      "notes": null,
+      "category": "Pantry"
+    },
+    {
+      "name": "paprika",
+      "quantity": 1,
+      "unit": "tsp",
+      "notes": null,
+      "category": "Pantry"
+    }
+  ]
+}
+
+Example 3
+Input text:
+"This page contains cooking tips and techniques but does not list a recipe ingredient list."
+
+Output JSON:
+{
+  "recipeName": null,
+  "servings": null,
+  "ingredients": []
+}
+
 Webpage content:
 ${content}`
 }
 
 const mapAnthropicApiError = (
-  error: Anthropic.APIError,
+  error: InstanceType<typeof Anthropic.APIError>,
   requestId?: string
 ): AnthropicClientError => {
   const status = error.status
