@@ -1,28 +1,44 @@
-:root {
-  color-scheme: dark;
-  font-family: 'Inter', system-ui, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #e2e8f0;
-  background-color: #0b1120;
+@import "@fontsource/geist-mono/300.css";
+@import "@fontsource/geist-mono/400.css";
+@import "tailwindcss";
+
+@theme {
+  --color-chomp-blue: #2020b1;
+  --color-chomp-cream: #efe0b7;
+  --font-geist-mono: 'Geist Mono', var(--font-mono);
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+@layer base {
+  :root {
+    color-scheme: dark;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color: #e2e8f0;
+    background-color: #0b1120;
+  }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-}
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-#root {
-  min-height: 100vh;
-}
+  body {
+    margin: 0;
+    min-height: 100vh;
+  }
 
-h1,
-p {
-  margin: 0;
+  #root {
+    min-height: 100vh;
+  }
+
+  h1,
+  p {
+    margin: 0;
+  }
+
+  p, a {
+    font-family: var(--font-geist-mono);
+  }
 }
