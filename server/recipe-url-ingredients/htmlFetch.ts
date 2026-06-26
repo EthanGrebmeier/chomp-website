@@ -33,6 +33,10 @@ export type HtmlFetchOptions = {
   maxRedirects?: number
 }
 
+type FetchErrorWithCode = Error & {
+  code?: string
+}
+
 const DEFAULT_TIMEOUT_MS = 10_000
 const DEFAULT_MAX_SIZE_BYTES = 2 * 1024 * 1024 // 2 MB
 const DEFAULT_MAX_REDIRECTS = 5
@@ -85,7 +89,7 @@ export const fetchHtml = async (
                 .maxSizeBytes
               if (!isNaN(length) && length > limit) {
                 const error = new Error(`Content size ${length} exceeds limit of ${limit} bytes`)
-                ;(error as NodeJS.ErrnoException).code = 'ERR_CONTENT_TOO_LARGE'
+                ;(error as FetchErrorWithCode).code = 'ERR_CONTENT_TOO_LARGE'
                 throw error
               }
             }
@@ -143,7 +147,7 @@ const handleFetchError = (error: unknown): HtmlFetchError => {
   }
 
   if (error instanceof Error) {
-    const e = error as NodeJS.ErrnoException
+    const e = error as FetchErrorWithCode
 
     if (e.code === 'ERR_CONTENT_TOO_LARGE') {
       return { ok: false, code: 'content_too_large', message: e.message }

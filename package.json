@@ -18,8 +18,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
+    "@clerk/backend": "^3.8.4",
     "@clerk/express": "^1.7.65",
     "@fontsource/geist-mono": "^5.2.8",
+    "@instantdb/admin": "^1.0.49",
     "@tailwindcss/vite": "^4.1.18",
     "defuddle": "^0.10.0",
     "dotenv": "^17.2.3",

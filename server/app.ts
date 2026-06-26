@@ -1,6 +1,8 @@
 import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createAccountDeletionRoute } from './account/route.js'
+import { accountDeletionErrorHandler } from './account/errors.js'
 import { createRecipeUrlIngredientsRoute } from './recipe-url-ingredients/route.js'
 import { recipeUrlIngredientsErrorHandler } from './recipe-url-ingredients/errors.js'
 import { createShareRoutes } from './shareRoutes.js'
@@ -37,6 +39,12 @@ export const createApp = () => {
 
   // Recipe URL ingredients API
   app.post('/api/recipes/ingredients-from-url', ...createRecipeUrlIngredientsRoute())
+
+  // Account deletion API
+  app.delete('/api/account', ...createAccountDeletionRoute())
+
+  // Error handler for account API (must be after routes)
+  app.use('/api/account', accountDeletionErrorHandler)
 
   // Error handler for recipe URL ingredients API (must be after routes)
   app.use('/api/recipes', recipeUrlIngredientsErrorHandler)

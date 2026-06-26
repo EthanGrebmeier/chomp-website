@@ -2,6 +2,8 @@ export type ServerConfig = {
   port: number
   clerkSecretKey: string
   anthropicApiKey: string
+  instantAppId: string
+  instantAdminToken: string
   authBypass: boolean
 }
 
@@ -36,6 +38,13 @@ export const loadConfig = (): ServerConfig => {
     ? (process.env.CLERK_SECRET_KEY?.trim() ?? '')
     : readRequiredEnv('CLERK_SECRET_KEY', missing)
   const anthropicApiKey = readRequiredEnv('ANTHROPIC_API_KEY', missing)
+  // Instant credentials are only used by the real account deletion route.
+  const instantAppId = authBypass
+    ? (process.env.INSTANT_APP_ID?.trim() ?? '')
+    : readRequiredEnv('INSTANT_APP_ID', missing)
+  const instantAdminToken = authBypass
+    ? (process.env.INSTANT_ADMIN_TOKEN?.trim() ?? '')
+    : readRequiredEnv('INSTANT_ADMIN_TOKEN', missing)
   const port = parsePort(process.env.PORT, errors)
 
   if (missing.length > 0) {
@@ -50,6 +59,8 @@ export const loadConfig = (): ServerConfig => {
     port,
     clerkSecretKey,
     anthropicApiKey,
+    instantAppId,
+    instantAdminToken,
     authBypass,
   }
 }
