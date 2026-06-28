@@ -16,9 +16,20 @@ const storeLinks = [
     label: 'Made by Ethan Grebmeier',
     href: 'https://ethangrebmeier.com',
   },
+]
+
+const footerLinks = [
   {
     label: 'Privacy Policy',
     href: '/privacy',
+  },
+  {
+    label: 'Terms of Service',
+    href: '/terms',
+  },
+  {
+    label: 'Support',
+    href: '/support',
   },
 ]
 
@@ -71,6 +82,18 @@ export default function App() {
             </div>
           </div>
         </div>
+
+        <footer className="flex flex-wrap gap-x-4 gap-y-1 px-6 pb-6 text-xs text-chomp-cream/70 md:px-12">
+          {footerLinks.map((link) => (
+            <a
+              className="underline-offset-2 transition-opacity hover:opacity-100 hover:underline focus-visible:opacity-100 focus-visible:underline focus-visible:outline-none"
+              href={link.href}
+              key={link.label}
+            >
+              {link.label}
+            </a>
+          ))}
+        </footer>
       </main>
     </div>
   )
