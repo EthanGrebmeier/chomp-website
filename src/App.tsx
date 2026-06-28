@@ -16,6 +16,10 @@ const storeLinks = [
     label: 'Made by Ethan Grebmeier',
     href: 'https://ethangrebmeier.com',
   },
+  {
+    label: 'Privacy Policy',
+    href: '/privacy',
+  },
 ]
 
 const emptyStoreRows = Math.max(featureItems.length - storeLinks.length, 0)
