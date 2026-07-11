@@ -10,7 +10,7 @@ const featureItems = [
 const storeLinks = [
   {
     label: 'Download on the App Store',
-    href: '#',
+    href: 'https://apps.apple.com/us/app/chomp-grocery-meal-planning/id6754225714',
   },
   {
     label: 'Made by Ethan Grebmeier',
