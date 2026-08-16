@@ -15,9 +15,10 @@ try {
 }
 
 const app = createApp()
+const host = process.env.HOST?.trim() || '0.0.0.0'
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`)
+app.listen(port, host, () => {
+  console.log(`Server running at http://${host}:${port}`)
   if (authBypass) {
     console.warn('⚠️  AUTH_BYPASS is enabled - authentication is disabled!')
   }
