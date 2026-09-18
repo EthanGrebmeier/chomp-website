@@ -2,6 +2,8 @@ export type ServerConfig = {
   port: number
   clerkSecretKey: string
   anthropicApiKey: string
+  /** Optional override for the Anthropic model ID. */
+  anthropicModel: string | undefined
   instantAppId: string
   instantAdminToken: string
   authBypass: boolean
@@ -38,6 +40,7 @@ export const loadConfig = (): ServerConfig => {
     ? (process.env.CLERK_SECRET_KEY?.trim() ?? '')
     : readRequiredEnv('CLERK_SECRET_KEY', missing)
   const anthropicApiKey = readRequiredEnv('ANTHROPIC_API_KEY', missing)
+  const anthropicModel = process.env.ANTHROPIC_MODEL?.trim() || undefined
   // Instant credentials are only used by the real account deletion route.
   const instantAppId = authBypass
     ? (process.env.INSTANT_APP_ID?.trim() ?? '')
@@ -59,6 +62,7 @@ export const loadConfig = (): ServerConfig => {
     port,
     clerkSecretKey,
     anthropicApiKey,
+    anthropicModel,
     instantAppId,
     instantAdminToken,
     authBypass,

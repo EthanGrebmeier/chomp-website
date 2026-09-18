@@ -135,7 +135,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
       mockExtractIngredientsResult = {
         content: validAIResponse,
         usage: { inputTokens: 100, outputTokens: 50 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         requestId: 'test-req-id',
         latencyMs: 500,
       }
@@ -172,7 +172,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
           ingredients: [{ name: 'Sugar', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
         }),
         usage: { inputTokens: 100, outputTokens: 30 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         latencyMs: 300,
       }
 
@@ -387,7 +387,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
       mockExtractIngredientsResult = {
         content: 'This is not valid JSON',
         usage: { inputTokens: 100, outputTokens: 10 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         latencyMs: 200,
       }
 
@@ -406,7 +406,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
           // Missing 'servings' and 'ingredients' fields
         }),
         usage: { inputTokens: 100, outputTokens: 10 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         latencyMs: 200,
       }
 
@@ -426,7 +426,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
           ingredients: [],
         }),
         usage: { inputTokens: 100, outputTokens: 20 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         latencyMs: 200,
       }
 
@@ -454,7 +454,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
       mockExtractIngredientsResult = {
         content: '```json\n' + validAIResponse + '\n```',
         usage: { inputTokens: 100, outputTokens: 50 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         latencyMs: 500,
       }
 
@@ -470,7 +470,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
       mockExtractIngredientsResult = {
         content: '```\n' + validAIResponse + '\n```',
         usage: { inputTokens: 100, outputTokens: 50 },
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         latencyMs: 500,
       }
 

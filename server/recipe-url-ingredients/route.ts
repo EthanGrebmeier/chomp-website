@@ -94,6 +94,7 @@ const getAnthropicClient = (): AnthropicClient => {
     const config = loadConfig()
     anthropicClient = createAnthropicClient({
       apiKey: config.anthropicApiKey,
+      model: config.anthropicModel,
     })
   }
   return anthropicClient

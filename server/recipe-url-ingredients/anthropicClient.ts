@@ -6,6 +6,8 @@ export type AnthropicClientConfig = {
   timeoutMs?: number
   /** Max retries for transient failures. Default: 2 */
   maxRetries?: number
+  /** Anthropic model ID. Default: DEFAULT_MODEL */
+  model?: string
 }
 
 export type AnthropicRequestOptions = {
@@ -46,10 +48,19 @@ export class AnthropicClientError extends Error {
 
 const DEFAULT_TIMEOUT_MS = 30_000
 const DEFAULT_MAX_RETRIES = 2
-const MODEL = 'claude-sonnet-4-20250514'
+/**
+ * Model IDs get retired; keep this overridable via ANTHROPIC_MODEL so a
+ * rotation doesn't require a code change.
+ */
+export const DEFAULT_MODEL = 'claude-sonnet-4-6'
 
 export const createAnthropicClient = (config: AnthropicClientConfig) => {
-  const { apiKey, timeoutMs = DEFAULT_TIMEOUT_MS, maxRetries = DEFAULT_MAX_RETRIES } = config
+  const {
+    apiKey,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    maxRetries = DEFAULT_MAX_RETRIES,
+    model = DEFAULT_MODEL,
+  } = config
 
   const client = new Anthropic({
     apiKey,
@@ -66,7 +77,7 @@ export const createAnthropicClient = (config: AnthropicClientConfig) => {
 
     try {
       const response = await client.messages.create({
-        model: MODEL,
+        model,
         max_tokens: 8000,
         messages: [
           {
