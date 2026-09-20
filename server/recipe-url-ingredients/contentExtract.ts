@@ -155,12 +155,52 @@ const formatJsonLdRecipeAsContent = (recipe: JsonLdRecipe): string => {
 }
 
 /**
+ * Opening tag of a reader-comment / discussion container. Recipe content always
+ * precedes comments, so everything from here on is dead weight for extraction.
+ */
+const DISCUSSION_MARKER =
+  /<(?:div|section|ol|ul|aside)\b[^>]*\b(?:id|class)\s*=\s*["'][^"']*\b(?:comments|comment-list|commentlist|comments-area|comment-respond)\b/i
+
+/**
+ * Truncate HTML at the first comment/discussion container.
+ *
+ * The expensive part of extraction is building the DOM, and its cost scales
+ * with document size. A recipe blog post can be 1.5MB where <5% is the article
+ * and the rest is thousands of reader comments. Cutting the tail before we ever
+ * parse takes DOM construction from hundreds of ms to single digits (and ~6s to
+ * <1s on the production box) with byte-identical article output. JSON-LD lives
+ * in <head>, so it is always preserved. If no marker is found the HTML is
+ * returned unchanged.
+ */
+const trimAfterDiscussion = (html: string): string => {
+  const index = html.search(DISCUSSION_MARKER)
+  if (index === -1) return html
+  return `${html.slice(0, index)}</body></html>`
+}
+
+/**
  * Extract main content from HTML, prioritizing JSON-LD Recipe data.
  *
  * First attempts to extract structured Recipe data from JSON-LD scripts.
  * Falls back to Defuddle for general content extraction.
+ *
+ * Trims the comment thread before parsing for performance; if that trim yields
+ * nothing extractable (an unexpectedly early marker match) we retry on the full
+ * HTML so a heuristic can never cost us a recipe.
  */
 export const extractContent = async (
+  html: string,
+  url: string
+): Promise<ContentExtractResult> => {
+  const trimmed = trimAfterDiscussion(html)
+  const result = await extractFromHtml(trimmed, url)
+  if (!result.ok && result.code === 'no_content' && trimmed.length < html.length) {
+    return extractFromHtml(html, url)
+  }
+  return result
+}
+
+const extractFromHtml = async (
   html: string,
   url: string
 ): Promise<ContentExtractResult> => {
@@ -179,15 +219,9 @@ export const extractContent = async (
       }
     }
 
-    // Try Defuddle extraction.
-    //
-    // Defuddle scores every node in the document, so its cost scales with DOM
-    // size, not article size. Recipe blogs (e.g. smitten kitchen) attach
-    // thousands of reader comments to a post: one page measured 13,690 elements,
-    // 6,001 of them comments, which made Defuddle take ~9s locally and ~90s on
-    // the constrained production box - long enough to blow past the mobile
-    // client's timeout. Dropping the comment/discussion containers first cuts
-    // that to well under a second with byte-identical article output.
+    // Try Defuddle extraction. The bulk of the comment thread is already gone
+    // (trimAfterDiscussion), but removeDiscussionSections mops up any container
+    // variant the string trim did not match before Defuddle scores the nodes.
     const dom = new JSDOM(html, { url })
     removeDiscussionSections(dom.window.document)
     const article = await Defuddle(dom, url, {
