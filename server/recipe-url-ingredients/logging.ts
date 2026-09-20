@@ -21,6 +21,7 @@ export type RequestLogEntry = {
   userId: string | null
   urlHost: string | null
   fetchLatencyMs: number | null
+  contentLatencyMs: number | null
   aiLatencyMs: number | null
   tokenUsage: {
     input: number

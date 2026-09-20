@@ -95,6 +95,11 @@ const getAnthropicClient = (): AnthropicClient => {
     anthropicClient = createAnthropicClient({
       apiKey: config.anthropicApiKey,
       model: config.anthropicModel,
+      // The mobile client caps a parse at 60s. With the default 30s Anthropic
+      // timeout, 2 retries could burn ~90s on the AI step alone and guarantee a
+      // client-side timeout. Cap at a single retry so fetch + extract + AI stays
+      // within the client budget.
+      maxRetries: 1,
     })
   }
   return anthropicClient
@@ -110,6 +115,7 @@ const createErrorSender = (
   metrics: {
     urlHost: string | null
     fetchLatencyMs: number | null
+    contentLatencyMs: number | null
     aiLatencyMs: number | null
     tokenUsage: { input: number; output: number } | null
   }
@@ -124,6 +130,7 @@ const createErrorSender = (
       userId,
       urlHost: metrics.urlHost,
       fetchLatencyMs: metrics.fetchLatencyMs,
+      contentLatencyMs: metrics.contentLatencyMs,
       aiLatencyMs: metrics.aiLatencyMs,
       tokenUsage: metrics.tokenUsage,
       totalLatencyMs,
@@ -148,12 +155,41 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
   const metrics = {
     urlHost: null as string | null,
     fetchLatencyMs: null as number | null,
+    contentLatencyMs: null as number | null,
     aiLatencyMs: null as number | null,
     tokenUsage: null as { input: number; output: number } | null,
   }
 
   // Error helper that logs metrics then throws to centralized handler
   const sendError = createErrorSender(req, res, metrics)
+
+  // The mobile client aborts on its own timeout and on every retry, but the
+  // HTTP request keeps running here with no way to cancel an in-flight fetch or
+  // a synchronous JSDOM parse. On a single-CPU machine those abandoned requests
+  // stack up and starve the event loop, which is how a trivial request ends up
+  // logging 100s+ of total latency. Track disconnects so we can bail out before
+  // starting the next expensive step instead of piling on more work.
+  let clientGone = false
+  req.on('close', () => {
+    if (!res.writableEnded) clientGone = true
+  })
+  const bailIfClientGone = (): boolean => {
+    if (!clientGone) return false
+    const logEntry: RequestLogEntry = {
+      requestId,
+      userId,
+      urlHost: metrics.urlHost,
+      fetchLatencyMs: metrics.fetchLatencyMs,
+      contentLatencyMs: metrics.contentLatencyMs,
+      aiLatencyMs: metrics.aiLatencyMs,
+      tokenUsage: metrics.tokenUsage,
+      totalLatencyMs: Date.now() - ctx.startTime,
+      status: 'error',
+      errorCode: 'client_disconnected',
+    }
+    logRequest(logEntry)
+    return true
+  }
 
   // Parse and validate request body
   let parsedRequest
@@ -192,14 +228,24 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
     return
   }
 
-  // Extract main content from HTML
+  if (bailIfClientGone()) return
+
+  // Extract main content from HTML. This step runs a synchronous JSDOM parse
+  // for pages without JSON-LD, which blocks the event loop, so we always time
+  // it: an unlogged multi-second parse here was the hidden cost behind imports
+  // that blew past the mobile client's timeout.
+  const contentTimer = startTimer()
   const contentResult = await extractContent(fetchResult.html, fetchResult.finalUrl)
+  metrics.contentLatencyMs = contentTimer.elapsed()
   if (!contentResult.ok) {
     const contentError = contentResult as ContentExtractError
     const errorCode = mapContentErrorCode(contentError.code)
     sendError(errorCode, contentError.message)
     return
   }
+
+  // Skip the most expensive step (the AI round-trip) if the client already left.
+  if (bailIfClientGone()) return
 
   // Call AI to extract ingredients
   let aiResult
@@ -253,6 +299,7 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
     userId,
     urlHost: metrics.urlHost,
     fetchLatencyMs: metrics.fetchLatencyMs,
+    contentLatencyMs: metrics.contentLatencyMs,
     aiLatencyMs: metrics.aiLatencyMs,
     tokenUsage: metrics.tokenUsage,
     totalLatencyMs,

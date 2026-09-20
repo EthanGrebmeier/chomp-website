@@ -179,8 +179,17 @@ export const extractContent = async (
       }
     }
 
-    // Try Defuddle extraction
+    // Try Defuddle extraction.
+    //
+    // Defuddle scores every node in the document, so its cost scales with DOM
+    // size, not article size. Recipe blogs (e.g. smitten kitchen) attach
+    // thousands of reader comments to a post: one page measured 13,690 elements,
+    // 6,001 of them comments, which made Defuddle take ~9s locally and ~90s on
+    // the constrained production box - long enough to blow past the mobile
+    // client's timeout. Dropping the comment/discussion containers first cuts
+    // that to well under a second with byte-identical article output.
     const dom = new JSDOM(html, { url })
+    removeDiscussionSections(dom.window.document)
     const article = await Defuddle(dom, url, {
       markdown: true,
       removeImages: true,
@@ -221,6 +230,34 @@ export const extractContent = async (
     }
   }
 }
+/**
+ * Comment/discussion containers that never hold recipe content but can dwarf
+ * the article in node count. Kept to container-level selectors so we never
+ * strip the recipe itself.
+ */
+const DISCUSSION_SELECTORS = [
+  '#comments',
+  '#respond',
+  '.comments-area',
+  '.comment-list',
+  '.commentlist',
+  '.comment-respond',
+]
+
+/**
+ * Remove reader-comment / discussion sections before content extraction.
+ * See the note in extractContent for why this matters for performance.
+ */
+const removeDiscussionSections = (document: Document): void => {
+  for (const selector of DISCUSSION_SELECTORS) {
+    try {
+      document.querySelectorAll(selector).forEach((el) => el.remove())
+    } catch {
+      // Ignore selector errors from non-standard markup.
+    }
+  }
+}
+
 /**
  * Remove scripts, styles, and other non-content elements.
  */
