@@ -49,10 +49,13 @@ export class AnthropicClientError extends Error {
 const DEFAULT_TIMEOUT_MS = 30_000
 const DEFAULT_MAX_RETRIES = 2
 /**
- * Model IDs get retired; keep this overridable via ANTHROPIC_MODEL so a
- * rotation doesn't require a code change.
+ * Ingredient extraction is a structured, few-shot task that Haiku handles well,
+ * and its faster token generation roughly halves the AI step vs Sonnet - the
+ * dominant cost of an import now that content extraction is trimmed. Model IDs
+ * get retired, so keep this overridable via ANTHROPIC_MODEL to allow a rotation
+ * (or a bump back to Sonnet) without a code change.
  */
-export const DEFAULT_MODEL = 'claude-sonnet-4-6'
+export const DEFAULT_MODEL = 'claude-haiku-4-5'
 
 export const createAnthropicClient = (config: AnthropicClientConfig) => {
   const {
