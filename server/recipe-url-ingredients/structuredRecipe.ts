@@ -11,7 +11,7 @@
  * LLM round-trip is skipped entirely (see ingredientParser.ts).
  */
 
-export type StructuredRecipeSource = 'json-ld' | 'wprm' | 'microdata'
+export type StructuredRecipeSource = 'json-ld' | 'wprm' | 'microdata' | 'html-list'
 
 export type StructuredRecipe = {
   source: StructuredRecipeSource
@@ -247,6 +247,116 @@ export const extractMicrodataRecipe = (document: Document): StructuredRecipe | n
     source: 'microdata',
     name: textOf(nameEl) || null,
     servings: yieldEl?.getAttribute('content')?.trim() || textOf(yieldEl) || null,
+    ingredientLines,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Plain HTML ingredient lists (no recipe markup at all)
+// ---------------------------------------------------------------------------
+
+/** A line that opens with an amount: "2 cups", "½ tsp", "One 8-ounce can". */
+const STARTS_WITH_AMOUNT =
+  /^(?:[\d½¼¾⅓⅔⅛]|(?:one|two|three|four|five|six|seven|eight|nine|ten|twelve|half)\s)/i
+
+/** "2 cups", "1 (14 oz) can", "3 large": an amount followed by a unit or size. */
+const AMOUNT_WITH_UNIT =
+  /^[\d½¼¾⅓⅔⅛][\d\s/½¼¾⅓⅔⅛.,-]*(?:\([^)]*\)\s*)?(?:cups?|tablespoons?|tbsps?\.?|teaspoons?|tsps?\.?|ounces?|oz\.?|pounds?|lbs?\.?|grams?|g|kg|ml|liters?|litres?|cloves?|cans?|large|medium|small|pinch|sticks?|slices?|bunch(?:es)?|heads?|sprigs?|quarts?|pints?)\b/i
+
+/** "Two years ago: <link>" (Smitten Kitchen's "Previously" block). */
+const TIME_AGO = /^\S+\s+(?:years?|months?|weeks?)\s+ago\b/i
+
+const MIN_BLOCK_LINES = 3
+const MAX_BLOCK_LINES = 40
+const MAX_LINE_LENGTH = 200
+/** Share of a block's lines that must start with an amount. */
+const MIN_AMOUNT_RATIO = 0.6
+/** Across all blocks, a recipe needs at least this many "amount + unit" lines. */
+const MIN_RECIPE_UNIT_LINES = 3
+
+const NON_CONTENT_SELECTOR =
+  'nav, header, footer, aside, form, script, style, noscript, .sidebar, .widget, .comments, #comments, .related, .jp-relatedposts, .sharedaddy'
+
+/**
+ * Split a <p> into lines at <br>. A line that is nothing but emphasized text
+ * ("<b>Frosting</b>", "<u>Stew</u>") is a sub-recipe title, not an ingredient.
+ */
+const paragraphLines = (el: Element): string[] =>
+  el.innerHTML
+    .split(/<br\s*\/?>/i)
+    .filter((segment) => {
+      const unemphasized = segment.replace(/<(b|strong|u|em|i)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+      return cleanMarkupText(unemphasized) !== '' || cleanMarkupText(segment) === ''
+    })
+    .map(cleanMarkupText)
+    .filter(Boolean)
+
+const listLines = (el: Element): string[] =>
+  Array.from(el.children)
+    .filter((child) => child.tagName === 'LI' && !child.querySelector('ul, ol'))
+    .map((li) => textOf(li))
+    .filter(Boolean)
+
+const hasAmount = (line: string): boolean => STARTS_WITH_AMOUNT.test(line) && !TIME_AGO.test(line)
+
+const isIngredientBlock = (lines: string[]): boolean => {
+  if (lines.length < MIN_BLOCK_LINES || lines.length > MAX_BLOCK_LINES) return false
+  if (lines.some((line) => line.length > MAX_LINE_LENGTH)) return false
+  const withAmount = lines.filter(hasAmount).length
+  return withAmount / lines.length >= MIN_AMOUNT_RATIO
+}
+
+/** A full sentence with no leading amount. */
+const isProse = (line: string): boolean =>
+  !hasAmount(line) && /[.!?]$/.test(line) && line.split(/\s+/).length >= 8
+
+const YIELD_PATTERN = /^(?:yield|yields|serves|servings|makes)\s*:?\s*(.{1,60})$/i
+
+/**
+ * Older blog posts (pre-2015 Smitten Kitchen and many others) have no recipe
+ * markup: the ingredients are a <br>-separated paragraph or a bare list. Find
+ * blocks where most lines start with an amount. Deliberately strict; the
+ * caller still validates every line with the parser and falls back to the
+ * LLM (with the full article) if any line looks wrong.
+ */
+export const extractHtmlListRecipe = (document: Document): StructuredRecipe | null => {
+  const body = document.body
+  if (!body) return null
+  const junk = new Set(Array.from(body.querySelectorAll(NON_CONTENT_SELECTOR)))
+  const insideJunk = (el: Element): boolean => {
+    for (let node: Element | null = el; node; node = node.parentElement) {
+      if (junk.has(node)) return true
+    }
+    return false
+  }
+
+  const ingredientLines: string[] = []
+  let servings: string | null = null
+
+  for (const el of Array.from(body.querySelectorAll('p, ul, ol'))) {
+    if (insideJunk(el)) continue
+    const lines = el.tagName === 'P' ? paragraphLines(el) : listLines(el)
+    if (!servings && el.tagName === 'P' && lines.length === 1) {
+      servings = lines[0].match(YIELD_PATTERN)?.[1]?.trim() ?? null
+    }
+    // Prose inside the block ("Optional: If you love cilantro, add some.") is advice, not an ingredient.
+    if (isIngredientBlock(lines)) ingredientLines.push(...lines.filter((line) => !isProse(line)))
+  }
+
+  // Listicles ("40+ Pie Recipes") start lines with numbers too; real
+  // ingredient lists have units.
+  const withUnit = ingredientLines.filter((line) => AMOUNT_WITH_UNIT.test(line)).length
+  if (withUnit < MIN_RECIPE_UNIT_LINES) return null
+
+  const title =
+    document.querySelector('meta[property="og:title"]')?.getAttribute('content') ??
+    textOf(document.querySelector('h1')) ??
+    null
+
+  return {
+    source: 'html-list',
+    name: title ? cleanMarkupText(title) || null : null,
+    servings,
     ingredientLines,
   }
 }

@@ -53,6 +53,59 @@ describe('parseIngredientLine', () => {
     ['4 sheets refrigerated pie crust', 'refrigerated pie crust', 4, 'sheet', null],
     ['Toppings as desired', 'Toppings', null, null, 'as desired'],
     ['lemon wedges to serve (optional)', 'lemon wedges', null, null, 'to serve, optional'],
+    // Hardening run: Smitten Kitchen, NYT, RecipeTin, Sally's, Food Network, Jamie Oliver, BBC, KAB...
+    ['2 medium eggplants [1 pound each or 2 pounds total)', 'eggplants', 2, 'medium', '1 pound each or 2 pounds total'],
+    ['4 tablespoons (55 grams or 2 ounces) unsalted butter, softened', 'unsalted butter', 4, 'tablespoon', '55 grams or 2 ounces, softened'],
+    ['½ cup/120 milliliters vegetable oil', 'vegetable oil', 0.5, 'cup', '120 milliliters'],
+    ['½ packed cup/110 grams light brown sugar', 'light brown sugar', 0.5, 'cup', 'packed, 110 grams'],
+    ['1/4 cup / 65 ml warm water', 'warm water', 0.25, 'cup', '65 ml'],
+    ['400 g / 14 oz / 4 cups shredded mozzarella cheese', 'mozzarella cheese', 400, 'gram', 'shredded, 14 oz, 4 cups'],
+    ['1.5 litres/2½ pints vegetable stock', 'vegetable stock', 1.5, 'liter', '2½ pints'],
+    ['5cm/2in piece fresh root ginger, peeled and chopped', 'fresh root ginger', 1, 'piece', '5 centimeter, 2in, peeled and chopped'],
+    ['1 and 1/2 teaspoons ground cinnamon', 'ground cinnamon', 1.5, 'teaspoon', null],
+    ['One 8-ounce package cream cheese, at room temperature', 'cream cheese', 1, 'package', '8-ounce, at room temperature'],
+    ['Two 28-ounce cans diced tomatoes', 'diced tomatoes', 2, 'can', '28-ounce'],
+    ['One 3- to 5-pound chuck roast', 'chuck roast', 1, null, '3- to 5-pound'],
+    ['2 x 400g tins of quality plum tomatoes', 'quality plum tomatoes', 2, 'tin', '400g'],
+    ['400g can black beans drained', 'black beans', 1, 'can', 'drained, 400 gram'],
+    ['15- ounce can pumpkin puree', 'pumpkin puree', 1, 'can', '15-ounce'],
+    ['10-to-12-ounce (285-to-340-gram) bag semisweet chocolate chips', 'semisweet chocolate chips', 1, 'bag', '285-to-340-gram, 10-to-12-ounce'],
+    ['A 250-gram or 8.8-ounce package dried thin egg noodles', 'dried thin egg noodles', 1, 'package', '8.8-ounce, 250-gram'],
+    ['half an 8-ounce package (113g) cream cheese', 'cream cheese', 0.5, 'package', '113g, 8-ounce'],
+    ['1 3" piece ginger, peeled', 'ginger', 1, 'piece', '3", peeled'],
+    ['15 6-inch corn tortillas ($1.37)', 'corn tortillas', 15, null, '6-inch'],
+    ['1/4 + 1/8 teaspoon baking soda', 'baking soda', 0.375, 'teaspoon', null],
+    ['Scant ¼ teaspoon cayenne pepper (optional)', 'cayenne pepper', 0.25, 'teaspoon', 'scant, optional'],
+    ['~1/2 tsp salt', 'salt', 0.5, 'teaspoon', 'about'],
+    ['2 or so teaspoons saffron', 'saffron', 2, 'teaspoon', 'about'],
+    ['optional: 1/4 cup (28g) ground flaxseed', 'ground flaxseed', 0.25, 'cup', 'optional, 28g'],
+    ['(optional) 2 teaspoons dried marjoram', 'dried marjoram', 2, 'teaspoon', 'optional'],
+    ['a pinch of salt', 'salt', 1, 'pinch', null],
+    ['a few sprigs thyme', 'thyme', null, null, 'a few sprigs'],
+    ['1 large, ripe mango', 'ripe mango', 1, 'large', null],
+    ['1 large or 2 medium eggplants', 'eggplants', 1, 'large', 'or 2 medium'],
+    ['2 lb 80/20 ground beef', '80/20 ground beef', 2, 'pound', null],
+    ['1 ½ cups 00 flour', '00 flour', 1.5, 'cup', null],
+    ['½ pound 93% ground turkey', '93% ground turkey', 0.5, 'pound', null],
+    ['7 ounces (200g) of 60-70% dark chocolate', '60-70% dark chocolate', 7, 'ounce', '200g'],
+    ['16 ounces 90% or 93% lean ground turkey', '90% or 93% lean ground turkey', 16, 'ounce', null],
+    ['1 ½ cups white whole wheat flour or regular whole wheat flour', 'white whole wheat flour', 1.5, 'cup', 'or regular whole wheat flour'],
+    ['6 makrut (Thai) lime leaves or zest of 2 limes', 'makrut lime leaves', 6, null, 'Thai, or zest of 2 limes'],
+    ['1 large aubergine sliced lengthways into ½cm slices', 'aubergine', 1, 'large', 'sliced lengthways into ½cm slices'],
+    ['1 red pepper deseeded and sliced', 'red pepper', 1, null, 'deseeded and sliced'],
+    ['2 large skinless chicken breasts cut into strips', 'skinless chicken breasts', 2, 'large', 'cut into strips'],
+    ['Finely grated zest from 1 medium orange', 'orange', 1, 'medium', 'zest, Finely grated'],
+    ['Seeds scraped from ½ vanilla bean', 'vanilla bean', 0.5, null, 'seeds scraped'],
+    ['Kernels cut from 2 ears of corn', 'corn', 2, 'ear', 'kernels cut'],
+    ['1 gigantic sweet potato - to cut into steaks', 'gigantic sweet potato', 1, null, 'to cut into steaks'],
+    ['3 g (1 teaspoon) Diamond Crystal kosher salt; for table salt, use half', 'Diamond Crystal kosher salt', 3, 'gram', '1 teaspoon, for table salt, use half'],
+    ['5 extra-large egg whites (I used 6 since I was using', 'extra-large egg whites', 5, null, 'I used 6 since I was using'],
+    ['1 can (15 oz chicken broth)', 'chicken broth', 1, 'can', '15 ounce'],
+    ['2 thin slices deli ham', 'deli ham', 2, 'slice', 'thin'],
+    ['4 rashers of smoked streaky bacon', 'smoked streaky bacon', 4, 'rasher', null],
+    ['3 to 4 cups shredded or thinly ribboned Swiss chard', 'Swiss chard', 4, 'cup', 'shredded, or thinly ribboned'],
+    ['1/2 cup pitted and rough-chopped olives', 'olives', 0.5, 'cup', 'pitted and rough-chopped'],
+    ['A pinch or two of ground cloves', 'ground cloves', 1, 'pinch', 'or two'],
   ])('%s', (line, name, quantity, unit, notes) => {
     expect(parse(line)).toEqual({ name, quantity, unit, notes })
   })
@@ -76,6 +129,15 @@ describe('parseIngredientLine', () => {
     })
   })
 
+  it('treats equipment and all-caps sub-recipe titles as headers', () => {
+    expect(parseIngredientLine('Special equipment: 2" leaf cookie cutters').kind).toBe('header')
+    expect(parseIngredientLine('STEAMED ASPARAGUS & QUICK TOMATO SAUCE').kind).toBe('header')
+  })
+
+  it('rejects names left over from a bad split', () => {
+    expect(parseIngredientLine('3 cups large or 4 small ripe bananas').kind).toBe('invalid')
+  })
+
   it('rejects a measurement leaking into the name', () => {
     expect(parseIngredientLine('1 cup flour ¾ tsp salt').kind).toBe('invalid')
   })
@@ -97,9 +159,15 @@ describe('parseIngredientLines', () => {
   })
 
   it('fails the whole recipe if any line is invalid', () => {
-    const result = parseIngredientLines(['2 cups flour', '2 cups 1 1/2 inch cubes of bread'])
+    const result = parseIngredientLines(['2 cups flour', '1 cup sugar ¾ tsp salt'])
     expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.failedLines).toEqual(['2 cups 1 1/2 inch cubes of bread'])
+    if (!result.ok) expect(result.failedLines).toEqual(['1 cup sugar ¾ tsp salt'])
+  })
+
+  it('splits two ingredients joined with +', () => {
+    const result = parseIngredientLines(['1 large egg + 1 egg yolk, at room temperature'])
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.ingredients.map((i) => i.name)).toEqual(['egg', 'egg yolk'])
   })
 
   it('fails when there are no ingredients', () => {

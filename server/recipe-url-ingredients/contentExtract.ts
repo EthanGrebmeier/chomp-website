@@ -2,6 +2,7 @@ import { Defuddle } from 'defuddle/node'
 import { JSDOM } from 'jsdom'
 import { parseHTML } from 'linkedom'
 import {
+  extractHtmlListRecipe,
   extractStructuredRecipe,
   formatStructuredRecipeAsContent,
   type StructuredRecipe,
@@ -105,13 +106,17 @@ const extractFromHtml = async (
       removeImages: true,
     })
 
+    // No recipe markup: look for a plain HTML ingredient list. The article
+    // content is kept so the LLM fallback still sees the whole post.
+    const listRecipe = extractHtmlListRecipe(document)
+
     if (article.content) {
       return {
         ok: true,
         title: article.title?.trim() || null,
         content: article.content,
         byline: article.author?.trim() || null,
-        recipe: null,
+        recipe: listRecipe,
       }
     }
 

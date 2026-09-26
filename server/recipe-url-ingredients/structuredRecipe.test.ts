@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { parseHTML } from 'linkedom'
-import { cleanMarkupText, extractStructuredRecipe } from './structuredRecipe.js'
+import {
+  cleanMarkupText,
+  extractHtmlListRecipe,
+  extractStructuredRecipe,
+} from './structuredRecipe.js'
 
 const doc = (html: string) => parseHTML(html).document as unknown as Document
 
@@ -97,5 +101,50 @@ line two"}</script></head></html>`
 
   it('returns null when there is no structured data', () => {
     expect(extractStructuredRecipe(doc('<html><body><p>hi</p></body></html>'))).toBeNull()
+  })
+})
+
+describe('extractHtmlListRecipe', () => {
+  const page = (body: string) =>
+    doc(`<html><head><meta property="og:title" content="Blue Sky Bran Muffins"></head><body>${body}</body></html>`)
+
+  it('reads a <br>-separated ingredient paragraph (old Smitten Kitchen)', () => {
+    const recipe = extractHtmlListRecipe(
+      page(`
+        <p><b>Two years ago:</b> <a href="#">Pizza</a><br /><b>Three years ago:</b> <a href="#">Bread</a></p>
+        <p>Yield: 12 muffins</p>
+        <p><u>Batter</u><br />1 1/3 cups (315 ml) buttermilk<br />1 large egg<br />1/4 teaspoon table salt<br />Kosher salt, to taste</p>
+        <p>Heat oven to 425 degrees F. Whisk 2 cups of flour with the buttermilk until smooth.</p>
+      `)
+    )
+    expect(recipe).toEqual({
+      source: 'html-list',
+      name: 'Blue Sky Bran Muffins',
+      servings: '12 muffins',
+      ingredientLines: [
+        '1 1/3 cups (315 ml) buttermilk',
+        '1 large egg',
+        '1/4 teaspoon table salt',
+        'Kosher salt, to taste',
+      ],
+    })
+  })
+
+  it('reads a bare <ul> ingredient list', () => {
+    const recipe = extractHtmlListRecipe(
+      page('<ul><li>2 cups flour</li><li>1 tsp salt</li><li>3 large eggs</li></ul>')
+    )
+    expect(recipe?.ingredientLines).toEqual(['2 cups flour', '1 tsp salt', '3 large eggs'])
+  })
+
+  it('ignores listicles and "years ago" link blocks', () => {
+    expect(
+      extractHtmlListRecipe(
+        page(`
+          <ul><li>40+ Thanksgiving Pie Recipes</li><li>30+ Pumpkin Desserts</li><li>25 Side Dishes</li></ul>
+          <p>One year ago: Crispy Treats<br />Two years ago: Pasta<br />Three years ago: Salad</p>
+        `)
+      )
+    ).toBeNull()
   })
 })
