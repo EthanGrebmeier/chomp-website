@@ -43,6 +43,15 @@ describe('parseIngredientLine', () => {
     ['1 1/2 tbsp light soy sauce ((or all purpose soy(Note 3)))', 'light soy sauce', 1.5, 'tablespoon', 'or all purpose soy'],
     ['12 ounces spaghetti pasta**', 'spaghetti pasta', 12, 'ounce', null],
     ['1 tbsp sunflower or vegetable oil, plus a little extra for frying', 'sunflower or vegetable oil', 1, 'tablespoon', 'plus a little extra for frying'],
+    ['225g/8oz plain flour', 'plain flour', 225, 'gram', '8oz'],
+    ['125ml/4½fl oz vegetable oil', 'vegetable oil', 125, 'milliliter', '4½fl oz'],
+    ['4 tablespoons (57g) melted butter or 1/4 cup (50g) vegetable oil', 'butter', 4, 'tablespoon', 'melted, 57g, or 1/4 cup 50g vegetable oil'],
+    ['4 (6- to 8-oz.) boneless, skinless chicken breasts', 'boneless skinless chicken breasts', 4, null, '6- to 8-oz.'],
+    ['1 lb boneless, skinless chicken breast ($5.47)', 'boneless skinless chicken breast', 1, 'pound', null],
+    ['2 cups diced peeled potatoes', 'potatoes', 2, 'cup', 'diced peeled'],
+    ['3 green onions sliced ($0.25)', 'green onions', 3, null, 'sliced'],
+    ['4 sheets refrigerated pie crust', 'refrigerated pie crust', 4, 'sheet', null],
+    ['Toppings as desired', 'Toppings', null, null, 'as desired'],
     ['lemon wedges to serve (optional)', 'lemon wedges', null, null, 'to serve, optional'],
   ])('%s', (line, name, quantity, unit, notes) => {
     expect(parse(line)).toEqual({ name, quantity, unit, notes })
@@ -56,10 +65,19 @@ describe('parseIngredientLine', () => {
     expect(parseIngredientLine('2 cups 1 1/2 inch cubes of 3 day old bread').kind).toBe('invalid')
   })
 
-  it('rejects a second measurement leaking into the name', () => {
+  it('keeps the first of two alternatives that each carry an amount', () => {
     expect(
-      parseIngredientLine('1¼ tsp. (4 g) Diamond Crystal or ¾ tsp. (4 g) Morton kosher salt').kind
-    ).toBe('invalid')
+      parse('1¼ tsp. (4 g) Diamond Crystal or ¾ tsp. (4 g) Morton kosher salt')
+    ).toEqual({
+      name: 'Diamond Crystal',
+      quantity: 1.25,
+      unit: 'teaspoon',
+      notes: '4 g, or ¾ tsp. 4 g Morton kosher salt',
+    })
+  })
+
+  it('rejects a measurement leaking into the name', () => {
+    expect(parseIngredientLine('1 cup flour ¾ tsp salt').kind).toBe('invalid')
   })
 
   it('rejects prose masquerading as an ingredient', () => {

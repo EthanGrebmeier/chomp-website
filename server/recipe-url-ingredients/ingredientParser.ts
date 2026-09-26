@@ -47,6 +47,9 @@ const ADDITIONAL_UOMS: UnitOfMeasureDefinitions = {
   jar: { short: 'jar', plural: 'jars', alternates: [], type: 'count' },
   bottle: { short: 'bottle', plural: 'bottles', alternates: [], type: 'count' },
   tin: { short: 'tin', plural: 'tins', alternates: [], type: 'count' },
+  sheet: { short: 'sheet', plural: 'sheets', alternates: [], type: 'count' },
+  stem: { short: 'stem', plural: 'stems', alternates: [], type: 'count' },
+  recipe: { short: 'recipe', plural: 'recipes', alternates: ['batch'], type: 'count' },
 }
 
 const PARSE_OPTIONS = { normalizeUOM: true, additionalUOMs: ADDITIONAL_UOMS } as const
@@ -127,13 +130,13 @@ const PREP_ADVERBS = [
 
 const PREP_PHRASE = `(?:(?:${PREP_ADVERBS.join('|')})\\s+)?(?:${PREP_WORDS.join('|')})`
 const LEADING_PREP = new RegExp(
-  `^(${PREP_PHRASE}(?:\\s*(?:,|and|or|&)\\s*${PREP_PHRASE})*)\\s+`,
+  `^(${PREP_PHRASE}(?:(?:\\s*(?:,|and|or|&)\\s*|\\s+)${PREP_PHRASE})*)\\s+`,
   'i'
 )
 
 /** Phrases that trail an ingredient without a comma: "salt to taste". */
 const TRAILING_NOTE = new RegExp(
-  `\\s+(to taste|to serve|for (?:garnish|garnishing|serving|topping|drizzling|dusting|frying|the pan)|as needed|if needed|optional|divided|at room temperature|room temperature|plus .*)$`,
+  `\\s+(to taste|to serve|for (?:garnish|garnishing|serving|topping|drizzling|dusting|frying|the pan)|as needed|if needed|as desired|optional|divided|at room temperature|room temperature|plus .*)$`,
   'i'
 )
 
@@ -148,8 +151,59 @@ const BULLET = /^[\s\-–—•*▢□☐✓✔·]+/
 /** "2 cups minus 2 tablespoons flour", "1½ cups plus 1 Tbsp. flour" */
 const COMPOUND_QUANTITY = /^(plus|minus|\+)\s+/i
 
-/** Footnote references carry no shopping information: "Note 1", "see note". */
-const USELESS_NOTE = /^(?:see\s+)?notes?(?:\s*\d+)?$/i
+/**
+ * Dual units written with a slash ("225g/8oz plain flour", "250ml/9fl oz milk"):
+ * keep the first measurement and turn the alternate into a parenthetical note.
+ */
+const DUAL_UNIT =
+  /^(\d[\d½¼¾⅓⅔⅛.,]*\s?(?:g|kg|ml|l|oz|lbs?))\/(\d[\d½¼¾⅓⅔⅛.,]*\s*(?:fl\.?\s*oz|oz|lbs?|g|kg|ml|l|pt|pints?|cups?|tbsp|tsp)\b\.?)/i
+
+/** "melted butter or 1/4 cup vegetable oil": an alternative with its own amount. */
+const ALTERNATIVE_WITH_AMOUNT = /\s+or\s+(?=[\d½¼¾⅓⅔⅛])/i
+
+/**
+ * Notes with no shopping information: footnote references ("Note 1", "see
+ * note") and per-ingredient prices ("$0.20", Budget Bytes).
+ */
+const USELESS_NOTE = /^(?:(?:see\s+)?notes?(?:\s*\d+)?|\$\s?\d+(?:\.\d+)?)$/i
+
+/**
+ * Descriptors that can precede a comma without being the ingredient itself:
+ * "boneless, skinless chicken breasts" must not become "boneless".
+ */
+const COMMA_DESCRIPTORS = new Set([
+  'boneless',
+  'skinless',
+  'bone-in',
+  'skin-on',
+  'seedless',
+  'unsalted',
+  'salted',
+  'ripe',
+  'fresh',
+  'raw',
+  'cooked',
+  'uncooked',
+  'organic',
+  'large',
+  'small',
+  'medium',
+  'thick',
+  'thin',
+  'hot',
+  'cold',
+  'warm',
+  'lean',
+  'extra-lean',
+])
+
+const isOnlyDescriptors = (text: string): boolean => {
+  const words = text.toLowerCase().split(/\s+/).filter(Boolean)
+  return words.length > 0 && words.every((w) => COMMA_DESCRIPTORS.has(w))
+}
+
+/** Prep word stuck on the end without a comma: "green onions sliced". */
+const TRAILING_PREP = new RegExp(`\\s+(${PREP_PHRASE})$`, 'i')
 
 /**
  * Pull every parenthetical (including nested and WPRM's doubled "((minced))")
@@ -211,7 +265,11 @@ type LineResult =
   | { kind: 'invalid' }
 
 export const parseIngredientLine = (rawLine: string): LineResult => {
-  const line = rawLine.replace(BULLET, '').replace(/\s+/g, ' ').trim()
+  const line = rawLine
+    .replace(BULLET, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(DUAL_UNIT, '$1 ($2)')
   if (!line) return { kind: 'header' }
 
   const [parsed] = parseIngredient(line, PARSE_OPTIONS)
@@ -223,6 +281,16 @@ export const parseIngredientLine = (rawLine: string): LineResult => {
   let unit = parsed.unitOfMeasureID
   let text = parsed.description.trim()
   const notes: string[] = []
+
+  // An alternative that carries its own amount ("butter or 1/4 cup (50g) oil")
+  // is a note, not part of the name. Split before parentheticals so the
+  // alternative keeps its own sizes.
+  let alternativeNote: string | null = null
+  const alternative = text.search(ALTERNATIVE_WITH_AMOUNT)
+  if (alternative !== -1) {
+    alternativeNote = text.slice(alternative).trim()
+    text = text.slice(0, alternative).trim()
+  }
 
   // Parentheticals anywhere are notes: "(14.5 oz) can", "ground beef (80/20)".
   text = extractParentheticals(text, notes).replace(/\*+/g, '').trim()
@@ -257,11 +325,14 @@ export const parseIngredientLine = (rawLine: string): LineResult => {
   }
 
   // Everything after the first comma is preparation / notes.
-  const commaIndex = text.indexOf(',')
-  if (commaIndex !== -1) {
-    notes.push(...splitNotes(text.slice(commaIndex + 1)))
-    text = text.slice(0, commaIndex).trim()
+  // Descriptor-only segments ("boneless, skinless, chicken") are joined back on.
+  const segments = text.split(/\s*,\s*/)
+  let head = segments.shift() ?? ''
+  while (segments.length > 0 && isOnlyDescriptors(head)) {
+    head = `${head} ${segments.shift()}`.trim()
   }
+  notes.push(...segments.flatMap(splitNotes))
+  text = head
 
   // Trailing phrases with no comma: "salt to taste", "parsley for garnish".
   let trailing = text.match(TRAILING_NOTE)
@@ -269,6 +340,12 @@ export const parseIngredientLine = (rawLine: string): LineResult => {
     notes.unshift(trailing[1])
     text = text.slice(0, trailing.index).trim()
     trailing = text.match(TRAILING_NOTE)
+  }
+
+  const trailingPrep = text.match(TRAILING_PREP)
+  if (trailingPrep && trailingPrep.index) {
+    notes.unshift(trailingPrep[1])
+    text = text.slice(0, trailingPrep.index).trim()
   }
 
   // "juice of 1 lemon" -> lemon, notes "juice".
@@ -284,6 +361,8 @@ export const parseIngredientLine = (rawLine: string): LineResult => {
     notes.unshift(prep[1])
     text = text.slice(prep[0].length)
   }
+
+  if (alternativeNote) notes.push(alternativeNote)
 
   // "2 cups of flour" -> "flour"
   const name = text.replace(/^of\s+/i, '').replace(/[\s.:;-]+$/, '').trim()

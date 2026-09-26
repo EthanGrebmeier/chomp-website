@@ -149,6 +149,24 @@ const findRecipeInJsonLd = (data: unknown, depth = 0): StructuredRecipe | null =
   return null
 }
 
+/**
+ * JSON.parse, retrying once with raw control characters (literal newlines/tabs
+ * inside strings, which some CMSes emit) replaced by spaces. Returns null if
+ * the JSON is still invalid.
+ */
+const parseLenientJson = (content: string): unknown => {
+  try {
+    return JSON.parse(content)
+  } catch {
+    try {
+      // eslint-disable-next-line no-control-regex
+      return JSON.parse(content.replace(/[\u0000-\u001F]+/g, ' '))
+    } catch {
+      return null
+    }
+  }
+}
+
 export const extractJsonLdRecipe = (document: Document): StructuredRecipe | null => {
   const scripts = document.querySelectorAll('script[type="application/ld+json"]')
 
@@ -156,12 +174,8 @@ export const extractJsonLdRecipe = (document: Document): StructuredRecipe | null
     const content = script.textContent
     if (!content) continue
 
-    try {
-      const recipe = findRecipeInJsonLd(JSON.parse(content))
-      if (recipe) return recipe
-    } catch {
-      // Invalid JSON, skip this script
-    }
+    const recipe = findRecipeInJsonLd(parseLenientJson(content))
+    if (recipe) return recipe
   }
 
   return null

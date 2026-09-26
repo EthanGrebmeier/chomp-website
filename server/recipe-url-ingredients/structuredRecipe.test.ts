@@ -89,6 +89,12 @@ describe('extractStructuredRecipe', () => {
     })
   })
 
+  it('tolerates raw control characters inside JSON-LD strings', () => {
+    const html = `<html><head><script type="application/ld+json">{"@type":"Recipe","recipeIngredient":["1 cup\tchickpeas"],"description":"line one
+line two"}</script></head></html>`
+    expect(extractStructuredRecipe(doc(html))?.ingredientLines).toEqual(['1 cup chickpeas'])
+  })
+
   it('returns null when there is no structured data', () => {
     expect(extractStructuredRecipe(doc('<html><body><p>hi</p></body></html>'))).toBeNull()
   })

@@ -1,0 +1,1684 @@
+[
+  {
+    "url": "https://cooking.nytimes.com/recipes/1015819-chocolate-chip-cookies",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 386,
+      "extractAndParse": 46
+    },
+    "result": {
+      "sourceUrl": "https://cooking.nytimes.com/recipes/1015819-chocolate-chip-cookies",
+      "recipeName": "Best Chocolate Chip Cookies",
+      "servings": "18 5-inch cookies",
+      "ingredients": [
+        {
+          "name": "Cake Flour",
+          "quantity": 2,
+          "unit": "cup",
+          "notes": "8 ½ ounces, minus 2 tablespoon"
+        },
+        {
+          "name": "Bread Flour",
+          "quantity": 1.667,
+          "unit": "cup",
+          "notes": "8 ½ ounces"
+        },
+        {
+          "name": "Baking Soda",
+          "quantity": 1.25,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Baking Powder",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Coarse Sea Salt",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": "plus more for sprinkling"
+        },
+        {
+          "name": "Unsalted Butter",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": "2 ½ sticks"
+        },
+        {
+          "name": "Light Brown Sugar",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": "10 ounces"
+        },
+        {
+          "name": "Granulated Sugar",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "8 ounces, plus 2 tablespoon"
+        },
+        {
+          "name": "Eggs",
+          "quantity": 2,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Natural Vanilla Extract",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Bittersweet Chocolate Disks or Fèves",
+          "quantity": 1.25,
+          "unit": "lb",
+          "notes": "at least 60 percent cacao content"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.bonappetit.com/recipe/bas-best-chocolate-chip-cookies",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 231,
+      "extractAndParse": 18
+    },
+    "result": {
+      "sourceUrl": "https://www.bonappetit.com/recipe/bas-best-chocolate-chip-cookies",
+      "recipeName": "BA’s Best Chocolate Chip Cookies",
+      "servings": "Makes 16",
+      "ingredients": [
+        {
+          "name": "All-Purpose Flour",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": "spooning into measuring cups, then leveling, 200 g, plus 1 tablespoon"
+        },
+        {
+          "name": "Diamond Crystal",
+          "quantity": 1.25,
+          "unit": "tsp",
+          "notes": "4 g, or ¾ tsp. 4 g Morton kosher salt"
+        },
+        {
+          "name": "Baking Soda",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "notes": "4 g"
+        },
+        {
+          "name": "Unsalted Butter",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "1½ sticks, 169 g, divided"
+        },
+        {
+          "name": "Dark Brown Sugar",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "packed, 200 g"
+        },
+        {
+          "name": "Granulated Sugar",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": "50 g"
+        },
+        {
+          "name": "Egg",
+          "quantity": 1,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Egg Yolks",
+          "quantity": 2,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Vanilla Extract",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Bittersweet Chocolate",
+          "quantity": 6,
+          "unit": "oz",
+          "notes": "60%–70% cacao, 170 g, coarsely chopped, or semisweet chocolate chips"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.recipetineats.com/chicken-stir-fry/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 288,
+      "extractAndParse": 14
+    },
+    "result": {
+      "sourceUrl": "https://www.recipetineats.com/chicken-stir-fry/",
+      "recipeName": "Chop Suey - Chicken Stir Fry",
+      "servings": "2 - 3 people",
+      "ingredients": [
+        {
+          "name": "Chicken Breast",
+          "quantity": 180,
+          "unit": "g",
+          "notes": "thinly sliced, 6oz"
+        },
+        {
+          "name": "Baking Soda / Bi-Carb",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": "optional"
+        },
+        {
+          "name": "Cornflour / Corn Starch",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Light Soy Sauce",
+          "quantity": 1.5,
+          "unit": "tbsp",
+          "notes": "or all purpose soy"
+        },
+        {
+          "name": "Oyster Sauce",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Chinese Cooking Wine",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": "OR Mirin"
+        },
+        {
+          "name": "Sesame Oil",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": "optional"
+        },
+        {
+          "name": "White Pepper",
+          "quantity": null,
+          "unit": "dash",
+          "notes": "or black"
+        },
+        {
+          "name": "Water",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "185 ml"
+        },
+        {
+          "name": "Vegetable Oil",
+          "quantity": 1.5,
+          "unit": "tbsp",
+          "notes": "or other cooking oil"
+        },
+        {
+          "name": "Garlic Cloves",
+          "quantity": 2,
+          "unit": null,
+          "notes": "finely chopped"
+        },
+        {
+          "name": "Onion",
+          "quantity": 0.5,
+          "unit": null,
+          "notes": "sliced, white, brown, yellow"
+        },
+        {
+          "name": "Choy Sum",
+          "quantity": 6,
+          "unit": "stem",
+          "notes": "or other Asian greens"
+        },
+        {
+          "name": "Carrot",
+          "quantity": 1,
+          "unit": "medium",
+          "notes": null
+        },
+        {
+          "name": "Mushrooms",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "sliced, shiitake is authentic, but any will do"
+        },
+        {
+          "name": "Bean Sprouts",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": null
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.bbcgoodfood.com/recipes/easy-pancakes",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 130,
+      "extractAndParse": 13
+    },
+    "result": {
+      "sourceUrl": "https://www.bbcgoodfood.com/recipes/easy-pancakes",
+      "recipeName": "Easy pancakes",
+      "servings": "Makes 12",
+      "ingredients": [
+        {
+          "name": "Plain Flour",
+          "quantity": 100,
+          "unit": "g",
+          "notes": null
+        },
+        {
+          "name": "Eggs",
+          "quantity": 2,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Milk",
+          "quantity": 300,
+          "unit": "ml",
+          "notes": null
+        },
+        {
+          "name": "Sunflower or Vegetable Oil",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": "plus a little extra for frying"
+        },
+        {
+          "name": "Lemon Wedges",
+          "quantity": null,
+          "unit": null,
+          "notes": "to serve, optional"
+        },
+        {
+          "name": "Caster Sugar",
+          "quantity": null,
+          "unit": null,
+          "notes": "to serve, optional"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://minimalistbaker.com/easy-vegan-fried-rice/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 104,
+      "extractAndParse": 8
+    },
+    "result": {
+      "sourceUrl": "https://minimalistbaker.com/easy-vegan-fried-rice/",
+      "recipeName": "Easy Vegan Fried Rice",
+      "servings": "4",
+      "ingredients": [
+        {
+          "name": "Extra-Firm Tofu",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "8 ounces yields ~1 cup"
+        },
+        {
+          "name": "Long- or Short-Grain Brown Rice",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "rinsed thoroughly in a fine mesh strainer"
+        },
+        {
+          "name": "Garlic",
+          "quantity": 4,
+          "unit": "clove",
+          "notes": "minced"
+        },
+        {
+          "name": "Green Onion",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "chopped"
+        },
+        {
+          "name": "Peas",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Carrots",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "finely diced"
+        },
+        {
+          "name": "Tamari or Soy Sauce",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": "plus more for veggies + to taste"
+        },
+        {
+          "name": "Peanut Butter",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Organic Brown Sugar",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": "muscovado sugar, or maple syrup"
+        },
+        {
+          "name": "Garlic",
+          "quantity": 1,
+          "unit": "clove",
+          "notes": "minced"
+        },
+        {
+          "name": "Chili Garlic Sauce",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": "more or less depending on preferred spice"
+        },
+        {
+          "name": "Sesame Oil",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": "toasted, optional // or sub peanut or avocado oil"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.loveandlemons.com/pesto-pasta/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 204,
+      "extractAndParse": 8
+    },
+    "result": {
+      "sourceUrl": "https://www.loveandlemons.com/pesto-pasta/",
+      "recipeName": "Easy Pesto Pasta",
+      "servings": "4",
+      "ingredients": [
+        {
+          "name": "Homemade Basil Pesto",
+          "quantity": 1,
+          "unit": "recipe",
+          "notes": null
+        },
+        {
+          "name": "Spaghetti Pasta",
+          "quantity": 12,
+          "unit": "oz",
+          "notes": null
+        },
+        {
+          "name": "Parmesan Cheese",
+          "quantity": null,
+          "unit": null,
+          "notes": "Freshly grated, for serving"
+        },
+        {
+          "name": "Fresh Basil Leaves",
+          "quantity": null,
+          "unit": null,
+          "notes": "for garnish"
+        },
+        {
+          "name": "Sea Salt and Freshly Ground Black Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.foodnetwork.com/recipes/alton-brown/baked-macaroni-and-cheese-recipe-1939524",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 463,
+      "extractAndParse": 14
+    },
+    "result": {
+      "sourceUrl": "https://www.foodnetwork.com/recipes/alton-brown/baked-macaroni-and-cheese-recipe-1939524",
+      "recipeName": "Baked Macaroni and Cheese",
+      "servings": "6 to 8 servings",
+      "ingredients": [
+        {
+          "name": "Elbow Macaroni",
+          "quantity": 0.5,
+          "unit": "lb",
+          "notes": null
+        },
+        {
+          "name": "Butter",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Flour",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Powdered Mustard",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Milk",
+          "quantity": 3,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Yellow Onion",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "finely diced"
+        },
+        {
+          "name": "Bay Leaf",
+          "quantity": 1,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Paprika",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Egg",
+          "quantity": 1,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Sharp Cheddar",
+          "quantity": 12,
+          "unit": "oz",
+          "notes": "shredded"
+        },
+        {
+          "name": "Kosher Salt",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Fresh Black Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Butter",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Panko Bread Crumbs",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": null
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://pinchofyum.com/the-best-soft-chocolate-chip-cookies",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 102,
+      "extractAndParse": 8
+    },
+    "result": {
+      "sourceUrl": "https://pinchofyum.com/the-best-soft-chocolate-chip-cookies",
+      "recipeName": "The Best Soft Chocolate Chip Cookies",
+      "servings": "12 cookies",
+      "ingredients": [
+        {
+          "name": "Salted Butter",
+          "quantity": 8,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "White Sugar",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "I like to use raw cane sugar with a coarser texture"
+        },
+        {
+          "name": "Light Brown Sugar",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": "packed"
+        },
+        {
+          "name": "Vanilla",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Egg",
+          "quantity": 1,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "All Purpose Flour",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": "6.75 ounces"
+        },
+        {
+          "name": "Baking Soda",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": "but I always add a little extra"
+        },
+        {
+          "name": "Chocolate Chips",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "I use a combination of chocolate chips and chocolate chunks"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.delish.com/cooking/recipe-ideas/a19636089/marry-me-chicken-recipe/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 423,
+      "extractAndParse": 17
+    },
+    "result": {
+      "sourceUrl": "https://www.delish.com/cooking/recipe-ideas/a19636089/marry-me-chicken-recipe/",
+      "recipeName": "Creamy Tuscan Chicken",
+      "servings": "4 serving(s)",
+      "ingredients": [
+        {
+          "name": "Extra-Virgin Olive Oil",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Boneless Skinless Chicken Breasts",
+          "quantity": 4,
+          "unit": null,
+          "notes": "6- to 8-oz."
+        },
+        {
+          "name": "Kosher Salt",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Black Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": "Freshly ground"
+        },
+        {
+          "name": "Dried Oregano",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Unsalted Butter",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Garlic Cloves",
+          "quantity": 3,
+          "unit": null,
+          "notes": "minced"
+        },
+        {
+          "name": "Cherry Tomatoes",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": "halved"
+        },
+        {
+          "name": "Baby Spinach",
+          "quantity": 3,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Heavy Cream",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Parmesan",
+          "quantity": 0.5,
+          "unit": "oz",
+          "notes": "about 1/4 cup, finely grated"
+        },
+        {
+          "name": "Lemon Wedges",
+          "quantity": null,
+          "unit": null,
+          "notes": "for serving"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.cookieandkate.com/best-lentil-soup-recipe/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 611,
+      "extractAndParse": 6
+    },
+    "result": {
+      "sourceUrl": "https://www.cookieandkate.com/best-lentil-soup-recipe/",
+      "recipeName": "Best Lentil Soup",
+      "servings": "4 servings",
+      "ingredients": [
+        {
+          "name": "Extra Virgin Olive Oil",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Yellow or White Onion",
+          "quantity": 1,
+          "unit": "medium",
+          "notes": "chopped"
+        },
+        {
+          "name": "Carrots",
+          "quantity": 2,
+          "unit": null,
+          "notes": "peeled and chopped"
+        },
+        {
+          "name": "Garlic Cloves",
+          "quantity": 4,
+          "unit": null,
+          "notes": "pressed or minced"
+        },
+        {
+          "name": "Ground Cumin",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Curry Powder",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Dried Thyme",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Diced Tomatoes",
+          "quantity": 1,
+          "unit": "can",
+          "notes": "28 ounces, large, lightly drained"
+        },
+        {
+          "name": "Brown or Green Lentils",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "picked over and rinsed"
+        },
+        {
+          "name": "Vegetable Broth",
+          "quantity": 4,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Water",
+          "quantity": 2,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": "more to taste"
+        },
+        {
+          "name": "Red Pepper Flakes",
+          "quantity": null,
+          "unit": "pinch",
+          "notes": null
+        },
+        {
+          "name": "Black Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": "Freshly ground, to taste"
+        },
+        {
+          "name": "Fresh Collard Greens or Kale",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "chopped, tough ribs removed"
+        },
+        {
+          "name": "Lemon Juice",
+          "quantity": 2,
+          "unit": "tbsp",
+          "notes": "½ to 1 medium lemon, to taste"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.kingarthurbaking.com/recipes/classic-sandwich-bread-recipe",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 162,
+      "extractAndParse": 13
+    },
+    "result": {
+      "sourceUrl": "https://www.kingarthurbaking.com/recipes/classic-sandwich-bread-recipe",
+      "recipeName": "Classic Sandwich Bread",
+      "servings": "1 loaf",
+      "ingredients": [
+        {
+          "name": "King Arthur Unbleached All-Purpose Flour",
+          "quantity": 3,
+          "unit": "cup",
+          "notes": "360g"
+        },
+        {
+          "name": "Milk",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "skim, 1%, 2% or whole, your choice, 113g"
+        },
+        {
+          "name": "Hot Water",
+          "quantity": 0.667,
+          "unit": "cup",
+          "notes": "see \"tips, \" below, 113g to 152g, enough to make a soft, smooth dough"
+        },
+        {
+          "name": "Butter",
+          "quantity": 4,
+          "unit": "tbsp",
+          "notes": "melted, 57g, or 1/4 cup 50g vegetable oil"
+        },
+        {
+          "name": "Granulated Sugar",
+          "quantity": 2,
+          "unit": "tbsp",
+          "notes": "25g"
+        },
+        {
+          "name": "Table Salt",
+          "quantity": 1.25,
+          "unit": "tsp",
+          "notes": "8g"
+        },
+        {
+          "name": "Instant Yeast",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.bbc.co.uk/food/recipes/easy_chocolate_cake_31070",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 104,
+      "extractAndParse": 7
+    },
+    "result": {
+      "sourceUrl": "https://www.bbc.co.uk/food/recipes/easy_chocolate_cake_31070",
+      "recipeName": "Easy chocolate cake",
+      "servings": "Serves 12",
+      "ingredients": [
+        {
+          "name": "Plain Flour",
+          "quantity": 225,
+          "unit": "g",
+          "notes": "8oz"
+        },
+        {
+          "name": "Caster Sugar",
+          "quantity": 350,
+          "unit": "g",
+          "notes": "12½oz"
+        },
+        {
+          "name": "Cocoa Powder",
+          "quantity": 85,
+          "unit": "g",
+          "notes": "3oz"
+        },
+        {
+          "name": "Baking Powder",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Bicarbonate of Soda",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Free-Range Eggs",
+          "quantity": 2,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Milk",
+          "quantity": 250,
+          "unit": "ml",
+          "notes": "9fl oz"
+        },
+        {
+          "name": "Vegetable Oil",
+          "quantity": 125,
+          "unit": "ml",
+          "notes": "4½fl oz"
+        },
+        {
+          "name": "Vanilla Extract",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Boiling Water",
+          "quantity": 250,
+          "unit": "ml",
+          "notes": "9fl oz"
+        },
+        {
+          "name": "Plain Chocolate",
+          "quantity": 200,
+          "unit": "g",
+          "notes": "7oz, broken into pieces"
+        },
+        {
+          "name": "Double Cream",
+          "quantity": 200,
+          "unit": "ml",
+          "notes": "7fl oz"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.tasteofhome.com/recipes/favorite-chicken-potpie/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 199,
+      "extractAndParse": 7
+    },
+    "result": {
+      "sourceUrl": "https://www.tasteofhome.com/recipes/favorite-chicken-potpie/",
+      "recipeName": "Chicken Potpie",
+      "servings": "2 potpies (8 servings each)",
+      "ingredients": [
+        {
+          "name": "Potatoes",
+          "quantity": 2,
+          "unit": "cup",
+          "notes": "diced peeled"
+        },
+        {
+          "name": "Carrots",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "sliced"
+        },
+        {
+          "name": "Butter",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": "cubed"
+        },
+        {
+          "name": "Onion",
+          "quantity": 0.667,
+          "unit": "cup",
+          "notes": "chopped"
+        },
+        {
+          "name": "All-Purpose Flour",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Dried Thyme",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Pepper",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Chicken Broth",
+          "quantity": 3,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Whole Milk",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Cooked Chicken",
+          "quantity": 4,
+          "unit": "cup",
+          "notes": "cubed"
+        },
+        {
+          "name": "Frozen Peas",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Frozen Corn",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Refrigerated Pie Crust",
+          "quantity": 4,
+          "unit": "sheet",
+          "notes": null
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.inspiredtaste.net/15938/easy-and-smooth-hummus-recipe/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 129,
+      "extractAndParse": 16
+    },
+    "result": {
+      "sourceUrl": "https://www.inspiredtaste.net/15938/easy-and-smooth-hummus-recipe/",
+      "recipeName": "Easy Hummus (Better than Store-Bought)",
+      "servings": "6 Servings (Makes 1 ½ cups)",
+      "ingredients": [
+        {
+          "name": "Chickpeas",
+          "quantity": 1,
+          "unit": "can",
+          "notes": "15-ounce, drained, or 1 ½ cups cooked chickpeas 250g"
+        },
+        {
+          "name": "Fresh Lemon Juice",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": "60ml, from 1 large lemon"
+        },
+        {
+          "name": "Well-Stirred Tahini",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": "60ml, try our tahini recipe"
+        },
+        {
+          "name": "Garlic Clove",
+          "quantity": 1,
+          "unit": "small",
+          "notes": "minced"
+        },
+        {
+          "name": "Extra-Virgin Olive Oil",
+          "quantity": 2,
+          "unit": "tbsp",
+          "notes": "30ml, plus more for serving"
+        },
+        {
+          "name": "Ground Cumin",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": null,
+          "unit": null,
+          "notes": "to taste"
+        },
+        {
+          "name": "Cold Water or Aquafaba",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": "45ml"
+        },
+        {
+          "name": "Ground Paprika",
+          "quantity": null,
+          "unit": "dash",
+          "notes": "sumac, or Za’atar for serving"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.twopeasandtheirpod.com/guacamole/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 280,
+      "extractAndParse": 5
+    },
+    "result": {
+      "sourceUrl": "https://www.twopeasandtheirpod.com/guacamole/",
+      "recipeName": "Guacamole Bacon Burger",
+      "servings": "4",
+      "ingredients": [
+        {
+          "name": "Hamburger Buns",
+          "quantity": 4,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Butter",
+          "quantity": null,
+          "unit": null,
+          "notes": "Softened, for toasting burger buns"
+        },
+        {
+          "name": "Ground Beef",
+          "quantity": 1,
+          "unit": "lb",
+          "notes": null
+        },
+        {
+          "name": "Garlic Powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Onion Powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Paprika",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Salt and Black Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": "to taste"
+        },
+        {
+          "name": "Pepper Jack Cheese",
+          "quantity": 4,
+          "unit": "slice",
+          "notes": null
+        },
+        {
+          "name": "Lettuce",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Tomato Slices",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Guacamole",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Bacon",
+          "quantity": 8,
+          "unit": "slice",
+          "notes": "cooked to your preference"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.justonecookbook.com/teriyaki-chicken/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 509,
+      "extractAndParse": 10
+    },
+    "result": {
+      "sourceUrl": "https://www.justonecookbook.com/teriyaki-chicken/",
+      "recipeName": "Butter Shoyu Chicken",
+      "servings": "2",
+      "ingredients": [
+        {
+          "name": "Boneless Skin-On Chicken Thighs",
+          "quantity": 1,
+          "unit": "lb",
+          "notes": null
+        },
+        {
+          "name": "Diamond Crystal Kosher Salt",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Black Pepper",
+          "quantity": 0.125,
+          "unit": "tsp",
+          "notes": "freshly ground"
+        },
+        {
+          "name": "Neutral Oil",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Sake",
+          "quantity": 4,
+          "unit": "tbsp",
+          "notes": "or water, for steaming"
+        },
+        {
+          "name": "Unsalted Butter",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Soy Sauce",
+          "quantity": 2.5,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Sake",
+          "quantity": 2,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Mirin",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Sugar",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.chelseasmessyapron.com/chicken-fajitas/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 113,
+      "extractAndParse": 7
+    },
+    "result": {
+      "sourceUrl": "https://www.chelseasmessyapron.com/chicken-fajitas/",
+      "recipeName": "Chicken Fajitas",
+      "servings": "4 servings",
+      "ingredients": [
+        {
+          "name": "Boneless Skinless Chicken Breast",
+          "quantity": 1,
+          "unit": "lb",
+          "notes": "or thighs"
+        },
+        {
+          "name": "Olive Oil",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Orange",
+          "quantity": 1,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Limes",
+          "quantity": 2,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Ground Chili Powder",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Paprika",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Ground Cumin",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Onion Powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Garlic Powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Pepper",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Ground Cayenne Pepper",
+          "quantity": 0.125,
+          "unit": "tsp",
+          "notes": "optional"
+        },
+        {
+          "name": "Olive Oil",
+          "quantity": 2,
+          "unit": "tbsp",
+          "notes": "divided"
+        },
+        {
+          "name": "Salt and Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": null
+        },
+        {
+          "name": "Bell Peppers",
+          "quantity": 3,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Yellow Onion",
+          "quantity": 1,
+          "unit": "large",
+          "notes": null
+        },
+        {
+          "name": "Toppings",
+          "quantity": null,
+          "unit": null,
+          "notes": "as desired"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.food.com/recipe/best-banana-bread-2886",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 191,
+      "extractAndParse": 12
+    },
+    "result": {
+      "sourceUrl": "https://www.food.com/recipe/best-banana-bread-2886",
+      "recipeName": "Best Banana Bread",
+      "servings": "1 loaf, 10 serving(s)",
+      "ingredients": [
+        {
+          "name": "Butter",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "softened"
+        },
+        {
+          "name": "Granulated Sugar",
+          "quantity": 1,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Eggs",
+          "quantity": 2,
+          "unit": null,
+          "notes": "beaten"
+        },
+        {
+          "name": "Bananas",
+          "quantity": 3,
+          "unit": null,
+          "notes": "for serious and extreme moist and delicious, try 4 bananas, finely crushed"
+        },
+        {
+          "name": "All-Purpose Flour",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Baking Soda",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Vanilla",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": "optional"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.budgetbytes.com/one-pot-creamy-cajun-chicken-pasta/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 199,
+      "extractAndParse": 10
+    },
+    "result": {
+      "sourceUrl": "https://www.budgetbytes.com/one-pot-creamy-cajun-chicken-pasta/",
+      "recipeName": "One Pot Creamy Cajun Chicken Pasta",
+      "servings": "4",
+      "ingredients": [
+        {
+          "name": "Smoked Paprika",
+          "quantity": 2,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Oregano",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Thyme",
+          "quantity": 1,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Garlic Powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Onion Powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Cayenne Pepper",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Black Pepper",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Salt",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null
+        },
+        {
+          "name": "Olive Oil",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Butter",
+          "quantity": 1,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Boneless Skinless Chicken Breast",
+          "quantity": 1,
+          "unit": "lb",
+          "notes": null
+        },
+        {
+          "name": "Yellow Onion",
+          "quantity": 1,
+          "unit": null,
+          "notes": "diced"
+        },
+        {
+          "name": "Penne Pasta",
+          "quantity": 0.5,
+          "unit": "lb",
+          "notes": "uncooked"
+        },
+        {
+          "name": "Fire Roasted Diced Tomatoes",
+          "quantity": 15,
+          "unit": "oz",
+          "notes": null
+        },
+        {
+          "name": "Chicken Broth",
+          "quantity": 2,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Cream Cheese",
+          "quantity": 2,
+          "unit": "oz",
+          "notes": null
+        },
+        {
+          "name": "Green Onions",
+          "quantity": 3,
+          "unit": null,
+          "notes": "sliced"
+        }
+      ]
+    }
+  },
+  {
+    "url": "https://www.allrecipes.com/recipe/11679/homemade-mac-and-cheese/",
+    "status": "fast_path",
+    "source": "json-ld",
+    "timingsMs": {
+      "fetch": 332,
+      "extractAndParse": 24
+    },
+    "result": {
+      "sourceUrl": "https://www.allrecipes.com/recipe/11679/homemade-mac-and-cheese/",
+      "recipeName": "Homemade Mac and Cheese",
+      "servings": "4",
+      "ingredients": [
+        {
+          "name": "Uncooked Elbow Macaroni",
+          "quantity": 8,
+          "unit": "oz",
+          "notes": null
+        },
+        {
+          "name": "Salted Butter",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "All-Purpose Flour",
+          "quantity": 3,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Milk",
+          "quantity": 2.5,
+          "unit": "cup",
+          "notes": "or more as needed"
+        },
+        {
+          "name": "Sharp Cheddar Cheese",
+          "quantity": 2,
+          "unit": "cup",
+          "notes": "shredded"
+        },
+        {
+          "name": "Parmesan Cheese",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "finely grated"
+        },
+        {
+          "name": "Salt and Ground Black Pepper",
+          "quantity": null,
+          "unit": null,
+          "notes": "to taste"
+        },
+        {
+          "name": "Salted Butter",
+          "quantity": 2,
+          "unit": "tbsp",
+          "notes": null
+        },
+        {
+          "name": "Dry Bread Crumbs",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null
+        },
+        {
+          "name": "Ground Paprika",
+          "quantity": 1,
+          "unit": "pinch",
+          "notes": null
+        }
+      ]
+    }
+  }
+]
