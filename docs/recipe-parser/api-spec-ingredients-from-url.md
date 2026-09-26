@@ -21,8 +21,26 @@ Requires Clerk authentication. Include the session token as a Bearer token in th
 ```typescript
 {
   url: string  // Required. Must be http:// or https://
+  categories?: Array<{   // Optional. The user's categories, in display order.
+    value: string        // Stable id, e.g. "produce", "spices", "costco-run"
+    label: string        // Display name, e.g. "Fruit & Veg", "Spices"
+  }>
 }
 ```
+
+If `categories` is missing, the defaults are used: `produce` (Produce), `deli` (Deli),
+`dairy` (Dairy), `bakery` (Bakery), `frozen` (Frozen), `beverages` (Beverages),
+`snacks` (Snacks), `health-beauty` (Health & Beauty), `household` (Household), `other` (Other).
+
+Bad `categories` input is cleaned up and never rejects the request:
+
+- Entries whose `value` or `label` isn't a non-empty string (after trimming) are dropped.
+- Entries whose `value` or `label` is longer than 100 characters are dropped.
+- Duplicate `value`s keep the first entry.
+- At most the first 100 valid entries are kept.
+- If nothing is left (or `categories` isn't an array), the defaults are used.
+
+`other` is always offered to the model, even if it isn't in the list.
 
 ---
 
@@ -40,6 +58,7 @@ Requires Clerk authentication. Include the session token as a Bearer token in th
     quantity: number | null  // e.g., 2
     unit: string | null      // e.g., "cups", "lbs"
     notes: string | null     // e.g., "diced", "room temperature"
+    category: string         // One of the offered category `value`s, or "other". Never a label.
   }>
 }
 ```

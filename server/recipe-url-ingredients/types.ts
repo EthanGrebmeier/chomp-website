@@ -1,19 +1,19 @@
+import type { RecipeCategory } from './categories.js'
+
 export type RecipeUrlIngredientsRequest = {
   url: string
+  /** User's categories in display order. Optional for older app builds. */
+  categories?: Array<{ value: string; label: string }>
 }
 
-export type IngredientCategory =
-  | 'Produce'
-  | 'Deli'
-  | 'Dairy'
-  | 'Bakery'
-  | 'Frozen'
-  | 'Pantry'
-  | 'Beverages'
-  | 'Snacks'
-  | 'Health & Beauty'
-  | 'Household'
-  | 'Other'
+/** Request after validation: categories are sanitized and always present. */
+export type ParsedRecipeUrlIngredientsRequest = {
+  url: string
+  categories: RecipeCategory[]
+}
+
+/** One of the offered category `value`s, or 'other'. Never a label. */
+export type IngredientCategory = string
 
 export type RecipeUrlIngredient = {
   name: string

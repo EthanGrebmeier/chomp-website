@@ -2,8 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import express, { type Express } from 'express'
 import request from 'supertest'
 import type { HtmlFetchResult } from './htmlFetch.js'
-import type { AnthropicExtractionResult } from './anthropicClient.js'
+import type { AnthropicExtractionResult, AnthropicRequestOptions } from './anthropicClient.js'
 import { AnthropicClientError } from './anthropicClient.js'
+import { DEFAULT_CATEGORIES } from './categories.js'
 
 // Mock request-filtering-agent to avoid module-level instantiation issues
 vi.mock('request-filtering-agent', () => ({
@@ -48,13 +49,15 @@ vi.mock('./htmlFetch.js', () => ({
 // Mock Anthropic client with controllable behavior
 let mockExtractIngredientsResult: AnthropicExtractionResult | null = null
 let mockExtractIngredientsError: Error | null = null
+let lastExtractOptions: AnthropicRequestOptions | undefined
 
 vi.mock('./anthropicClient.js', async (importOriginal) => {
   const original = await importOriginal<typeof import('./anthropicClient.js')>()
   return {
     ...original,
     createAnthropicClient: () => ({
-      extractIngredients: vi.fn(async () => {
+      extractIngredients: vi.fn(async (_content: string, options?: AnthropicRequestOptions) => {
+        lastExtractOptions = options
         if (mockExtractIngredientsError) {
           throw mockExtractIngredientsError
         }
@@ -89,9 +92,9 @@ const validAIResponse = JSON.stringify({
   recipeName: 'Simple Pasta',
   servings: '4',
   ingredients: [
-    { name: 'Flour', quantity: 2, unit: 'cups', notes: null, category: 'Pantry' },
-    { name: 'Eggs', quantity: 3, unit: null, notes: null, category: 'Dairy' },
-    { name: 'Salt', quantity: 1, unit: 'tsp', notes: null, category: 'Pantry' },
+    { name: 'Flour', quantity: 2, unit: 'cups', notes: null, category: 'other' },
+    { name: 'Eggs', quantity: 3, unit: null, notes: null, category: 'dairy' },
+    { name: 'Salt', quantity: 1, unit: 'tsp', notes: null, category: 'other' },
   ],
 })
 
@@ -105,6 +108,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
     mockFetchHtmlResult = null
     mockExtractIngredientsResult = null
     mockExtractIngredientsError = null
+    lastExtractOptions = undefined
 
     // Reset module cache to get fresh route handler with fresh client
     vi.resetModules()
@@ -150,9 +154,9 @@ describe('POST /api/recipes/ingredients-from-url', () => {
         recipeName: 'Simple Pasta',
         servings: '4',
         ingredients: [
-          { name: 'Flour', quantity: 2, unit: 'cup', notes: null, category: 'Pantry' },
-          { name: 'Eggs', quantity: 3, unit: null, notes: null, category: 'Dairy' },
-          { name: 'Salt', quantity: 1, unit: 'tsp', notes: null, category: 'Pantry' },
+          { name: 'Flour', quantity: 2, unit: 'cup', notes: null, category: 'other' },
+          { name: 'Eggs', quantity: 3, unit: null, notes: null, category: 'dairy' },
+          { name: 'Salt', quantity: 1, unit: 'tsp', notes: null, category: 'other' },
         ],
       })
     })
@@ -169,7 +173,7 @@ describe('POST /api/recipes/ingredients-from-url', () => {
         content: JSON.stringify({
           recipeName: null,
           servings: null,
-          ingredients: [{ name: 'Sugar', quantity: 1, unit: 'cup', notes: null, category: 'Pantry' }],
+          ingredients: [{ name: 'Sugar', quantity: 1, unit: 'cup', notes: null, category: 'other' }],
         }),
         usage: { inputTokens: 100, outputTokens: 30 },
         model: 'claude-sonnet-4-6',
@@ -480,6 +484,175 @@ describe('POST /api/recipes/ingredients-from-url', () => {
 
       expect(response.status).toBe(200)
       expect(response.body.ingredients).toHaveLength(3)
+    })
+  })
+
+  describe('User categories', () => {
+    const aiResponseWith = (ingredients: Array<{ name: string; category: string }>) => ({
+      content: JSON.stringify({
+        recipeName: 'Test',
+        servings: '2',
+        ingredients: ingredients.map((i) => ({ quantity: 1, unit: null, notes: null, ...i })),
+      }),
+      usage: { inputTokens: 100, outputTokens: 50 },
+      model: 'claude-haiku-4-5',
+      latencyMs: 100,
+    })
+
+    const offeredValues = () => (lastExtractOptions?.categories ?? []).map((c) => c.value)
+
+    beforeEach(() => {
+      mockFetchHtmlResult = {
+        ok: true,
+        html: validRecipeHtml,
+        contentType: 'text/html',
+        finalUrl: 'https://example.com/recipe',
+      }
+    })
+
+    it('uses the default categories when none are sent', async () => {
+      mockExtractIngredientsResult = aiResponseWith([
+        { name: 'Milk', category: 'dairy' },
+        { name: 'Flour', category: 'Pantry' }, // legacy value, no longer offered
+        { name: 'Apples', category: 'Produce' }, // label, not a value
+      ])
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe' })
+
+      expect(response.status).toBe(200)
+      expect(offeredValues()).toEqual(DEFAULT_CATEGORIES.map((c) => c.value))
+      const categories = response.body.ingredients.map((i: { category: string }) => i.category)
+      expect(categories).toEqual(['dairy', 'other', 'other'])
+      for (const c of categories) {
+        expect(DEFAULT_CATEGORIES.map((d) => d.value)).toContain(c)
+      }
+    })
+
+    it('offers and returns a custom category', async () => {
+      mockExtractIngredientsResult = aiResponseWith([
+        { name: 'Cumin', category: 'spices' },
+        { name: 'Paprika', category: 'spices' },
+      ])
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({
+          url: 'https://example.com/recipe',
+          categories: [
+            { value: 'produce', label: 'Produce' },
+            { value: 'spices', label: 'Spices' },
+          ],
+        })
+
+      expect(response.status).toBe(200)
+      expect(lastExtractOptions?.categories).toEqual([
+        { value: 'produce', label: 'Produce' },
+        { value: 'spices', label: 'Spices' },
+      ])
+      expect(response.body.ingredients.map((i: { category: string }) => i.category)).toEqual([
+        'spices',
+        'spices',
+      ])
+    })
+
+    it('returns the value of a renamed built-in, never its label', async () => {
+      mockExtractIngredientsResult = aiResponseWith([
+        { name: 'Carrots', category: 'produce' },
+        { name: 'Apples', category: 'Fruit & Veg' },
+      ])
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({
+          url: 'https://example.com/recipe',
+          categories: [{ value: 'produce', label: 'Fruit & Veg' }],
+        })
+
+      expect(response.status).toBe(200)
+      const categories = response.body.ingredients.map((i: { category: string }) => i.category)
+      expect(categories).toEqual(['produce', 'other'])
+      expect(JSON.stringify(response.body)).not.toContain('Fruit & Veg')
+    })
+
+    it('never returns dairy when dairy was not offered', async () => {
+      mockExtractIngredientsResult = aiResponseWith([{ name: 'Milk', category: 'dairy' }])
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({
+          url: 'https://example.com/recipe',
+          categories: [
+            { value: 'produce', label: 'Produce' },
+            { value: 'fridge', label: 'Fridge' },
+          ],
+        })
+
+      expect(response.status).toBe(200)
+      expect(offeredValues()).not.toContain('dairy')
+      expect(response.body.ingredients[0].category).toBe('other')
+    })
+
+    it('cleans up bad category entries and still returns 200', async () => {
+      mockExtractIngredientsResult = aiResponseWith([{ name: 'Cumin', category: 'spices' }])
+
+      const many = Array.from({ length: 150 }, (_, i) => ({ value: `c${i}`, label: `Cat ${i}` }))
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({
+          url: 'https://example.com/recipe',
+          categories: [
+            { value: '', label: 'Empty value' },
+            { value: 'blank-label', label: '   ' },
+            { value: 42, label: 'Number' },
+            null,
+            'not-an-object',
+            { value: '  spices  ', label: ' Spices ' },
+            { value: 'spices', label: 'Duplicate' },
+            { value: 'x'.repeat(101), label: 'Too long' },
+            ...many,
+          ],
+        })
+
+      expect(response.status).toBe(200)
+      const offered = lastExtractOptions?.categories ?? []
+      expect(offered).toHaveLength(100)
+      expect(offered[0]).toEqual({ value: 'spices', label: 'Spices' })
+      expect(offered.filter((c) => c.value === 'spices')).toHaveLength(1)
+      expect(response.body.ingredients[0].category).toBe('spices')
+    })
+
+    it('falls back to defaults for a non-array categories field', async () => {
+      mockExtractIngredientsResult = aiResponseWith([{ name: 'Milk', category: 'dairy' }])
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe', categories: 'produce' })
+
+      expect(response.status).toBe(200)
+      expect(offeredValues()).toEqual(DEFAULT_CATEGORIES.map((c) => c.value))
+      expect(response.body.ingredients[0].category).toBe('dairy')
+    })
+
+    it('replaces a category the model invented with other', async () => {
+      mockExtractIngredientsResult = aiResponseWith([
+        { name: 'Cumin', category: 'seasonings' },
+        { name: 'Salt', category: 'spices' },
+      ])
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({
+          url: 'https://example.com/recipe',
+          categories: [{ value: 'spices', label: 'Spices' }],
+        })
+
+      expect(response.status).toBe(200)
+      expect(response.body.ingredients.map((i: { category: string }) => i.category)).toEqual([
+        'other',
+        'spices',
+      ])
     })
   })
 

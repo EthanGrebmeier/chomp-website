@@ -1,6 +1,12 @@
 import { titleCase } from 'title-case'
 import type { AIExtraction, AIIngredient } from './aiExtract.js'
 import type { RecipeUrlIngredient, RecipeUrlIngredientsResponse } from './types.js'
+import {
+  DEFAULT_CATEGORIES,
+  coerceCategory,
+  withOtherCategory,
+  type RecipeCategory,
+} from './categories.js'
 
 /**
  * Common unit abbreviation mappings to standardize output.
@@ -143,16 +149,25 @@ export const normalizeNotes = (notes: string | null): string | null => {
   return cleaned.length === 0 ? null : cleaned
 }
 
+const allowedValuesFor = (categories: readonly RecipeCategory[]): Set<string> =>
+  new Set(withOtherCategory(categories).map((c) => c.value))
+
+const defaultAllowedValues = allowedValuesFor(DEFAULT_CATEGORIES)
+
 /**
  * Normalizes a single ingredient from AI extraction.
+ * The category is forced onto the allowed set ('other' if not offered).
  */
-export const normalizeIngredient = (ingredient: AIIngredient): RecipeUrlIngredient => {
+export const normalizeIngredient = (
+  ingredient: AIIngredient,
+  allowedCategoryValues: ReadonlySet<string> = defaultAllowedValues
+): RecipeUrlIngredient => {
   return {
     name: normalizeIngredientName(ingredient.name),
     quantity: ingredient.quantity,
     unit: normalizeUnit(ingredient.unit),
     notes: normalizeNotes(ingredient.notes),
-    category: ingredient.category,
+    category: coerceCategory(ingredient.category, allowedCategoryValues),
   }
 }
 
@@ -188,16 +203,20 @@ export const normalizeServings = (servings: string | null): string | null => {
  *
  * @param extraction - The raw AI extraction result
  * @param sourceUrl - The original URL that was parsed
+ * @param categories - The (sanitized) categories offered to the model. Any
+ *   returned category that isn't one of these values (or 'other') becomes 'other'.
  * @returns Normalized response ready for the API
  */
 export const normalizeExtraction = (
   extraction: AIExtraction,
-  sourceUrl: string
+  sourceUrl: string,
+  categories: readonly RecipeCategory[] = DEFAULT_CATEGORIES
 ): RecipeUrlIngredientsResponse => {
+  const allowed = allowedValuesFor(categories)
   return {
     sourceUrl,
     recipeName: normalizeRecipeName(extraction.recipeName),
     servings: normalizeServings(extraction.servings),
-    ingredients: extraction.ingredients.map(normalizeIngredient),
+    ingredients: extraction.ingredients.map((i) => normalizeIngredient(i, allowed)),
   }
 }

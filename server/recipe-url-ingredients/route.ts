@@ -205,7 +205,7 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
     return
   }
 
-  const { url: rawUrl } = parsedRequest
+  const { url: rawUrl, categories } = parsedRequest
   metrics.urlHost = extractUrlHost(rawUrl)
 
   // Validate URL structure
@@ -251,7 +251,10 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
   let aiResult
   try {
     const client = getAnthropicClient()
-    aiResult = await client.extractIngredients(contentResult.content, { requestId })
+    aiResult = await client.extractIngredients(contentResult.content, {
+      requestId,
+      categories,
+    })
     metrics.aiLatencyMs = aiResult.latencyMs
     metrics.tokenUsage = {
       input: aiResult.usage.inputTokens,
@@ -289,7 +292,8 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
   // Normalize the extraction to final response format
   const response: RecipeUrlIngredientsResponse = normalizeExtraction(
     parsedExtraction.extraction,
-    rawUrl
+    rawUrl,
+    categories
   )
 
   // Log successful request

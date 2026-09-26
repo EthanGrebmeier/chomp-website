@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { AnthropicExtractionResult } from './anthropicClient.js'
+import { OTHER_CATEGORY_VALUE } from './categories.js'
 
 /**
  * Schema for validating the raw AI extraction response.
@@ -10,19 +11,9 @@ const aiIngredientSchema = z.object({
   quantity: z.number().nullable(),
   unit: z.string().nullable(),
   notes: z.string().nullable(),
-  category: z.enum([
-    'Produce',
-    'Deli',
-    'Dairy',
-    'Bakery',
-    'Frozen',
-    'Pantry',
-    'Beverages',
-    'Snacks',
-    'Health & Beauty',
-    'Household',
-    'Other',
-  ]),
+  // Validated against the offered categories later (normalizeExtraction), so a
+  // bad or missing category downgrades to 'other' instead of failing the parse.
+  category: z.string().catch(OTHER_CATEGORY_VALUE),
 })
 
 const aiExtractionSchema = z.object({
