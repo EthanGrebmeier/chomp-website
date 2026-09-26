@@ -4,6 +4,13 @@ export type ServerConfig = {
   anthropicApiKey: string
   /** Optional override for the Anthropic model ID. */
   anthropicModel: string | undefined
+  /**
+   * TypeSafe (Jev) API key. When set, recipes with structured ingredient data
+   * are parsed deterministically and categorized by Jev, skipping the LLM.
+   */
+  typesafeApiKey: string | undefined
+  /** Optional override for the Jev model ID (defaults to jev-latest). */
+  typesafeModel: string | undefined
   instantAppId: string
   instantAdminToken: string
   authBypass: boolean
@@ -41,6 +48,12 @@ export const loadConfig = (): ServerConfig => {
     : readRequiredEnv('CLERK_SECRET_KEY', missing)
   const anthropicApiKey = readRequiredEnv('ANTHROPIC_API_KEY', missing)
   const anthropicModel = process.env.ANTHROPIC_MODEL?.trim() || undefined
+  // RECIPE_FAST_PATH=false is a kill switch that forces every import through the LLM.
+  const fastPathDisabled = process.env.RECIPE_FAST_PATH?.trim() === 'false'
+  const typesafeApiKey = fastPathDisabled
+    ? undefined
+    : process.env.TYPESAFE_API_KEY?.trim() || undefined
+  const typesafeModel = process.env.TYPESAFE_MODEL?.trim() || undefined
   // Instant credentials are only used by the real account deletion route.
   const instantAppId = authBypass
     ? (process.env.INSTANT_APP_ID?.trim() ?? '')
@@ -63,6 +76,8 @@ export const loadConfig = (): ServerConfig => {
     clerkSecretKey,
     anthropicApiKey,
     anthropicModel,
+    typesafeApiKey,
+    typesafeModel,
     instantAppId,
     instantAdminToken,
     authBypass,

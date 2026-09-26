@@ -73,6 +73,8 @@ const UNIT_MAPPINGS: Record<string, string> = {
   slices: 'slice',
   can: 'can',
   cans: 'can',
+  tin: 'can',
+  tins: 'can',
   package: 'package',
   packages: 'package',
   pkg: 'package',

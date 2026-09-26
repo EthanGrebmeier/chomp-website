@@ -23,6 +23,18 @@ export type RequestLogEntry = {
   fetchLatencyMs: number | null
   contentLatencyMs: number | null
   aiLatencyMs: number | null
+  /**
+   * 'fast' = structured data parsed in code + Jev categories (no LLM).
+   * 'llm' = full Anthropic extraction. null if we failed before choosing.
+   */
+  extractionPath: 'fast' | 'llm' | null
+  /** Where structured ingredient lines came from, if any. */
+  structuredSource: string | null
+  /** Why a request with structured data fell back to the LLM. */
+  fastPathFallbackReason: string | null
+  categorizeLatencyMs: number | null
+  /** Lowest Jev confidence across ingredients (for threshold tuning). */
+  categorizeMinConfidence: number | null
   tokenUsage: {
     input: number
     output: number

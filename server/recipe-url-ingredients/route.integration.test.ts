@@ -16,6 +16,7 @@ vi.mock('request-filtering-agent', () => ({
 vi.mock('../config.js', () => ({
   loadConfig: () => ({
     anthropicApiKey: 'test-api-key',
+    typesafeApiKey: 'test-typesafe-key',
     clerkSecretKey: 'test-clerk-key',
     clerkPublishableKey: 'test-clerk-pub-key',
     port: 3000,
@@ -70,6 +71,54 @@ vi.mock('./anthropicClient.js', async (importOriginal) => {
   }
 })
 
+// Mock Jev categorizer with controllable behavior
+let mockCategorizeError: Error | null = null
+let mockCategorizeFn: ((names: string[]) => string[]) | null = null
+let categorizeCalls = 0
+
+vi.mock('./jevCategorizer.js', async (importOriginal) => {
+  const original = await importOriginal<typeof import('./jevCategorizer.js')>()
+  return {
+    ...original,
+    createJevCategorizer: () => ({
+      categorize: vi.fn(async (items: Array<{ name: string }>) => {
+        categorizeCalls += 1
+        if (mockCategorizeError) throw mockCategorizeError
+        const names = items.map((i) => i.name)
+        return {
+          categories: mockCategorizeFn ? mockCategorizeFn(names) : names.map(() => 'other'),
+          minConfidence: 0.9,
+          latencyMs: 120,
+          usage: { inputTokens: 50, outputTokens: 0 },
+          model: 'jev-test',
+        }
+      }),
+    }),
+  }
+})
+
+const jsonLdRecipeHtml = (ingredients: string[]) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mac &amp; Cheese</title>
+  <script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'WebPage', name: 'Page' },
+      {
+        '@type': 'Recipe',
+        name: 'Baked Mac &amp; Cheese',
+        recipeYield: ['6', '6 servings'],
+        recipeIngredient: ingredients,
+      },
+    ],
+  })}</script>
+</head>
+<body><p>Story time.</p></body>
+</html>
+`
+
 const validRecipeHtml = `
 <!DOCTYPE html>
 <html>
@@ -109,6 +158,9 @@ describe('POST /api/recipes/ingredients-from-url', () => {
     mockExtractIngredientsResult = null
     mockExtractIngredientsError = null
     lastExtractOptions = undefined
+    mockCategorizeError = null
+    mockCategorizeFn = null
+    categorizeCalls = 0
 
     // Reset module cache to get fresh route handler with fresh client
     vi.resetModules()
@@ -653,6 +705,123 @@ describe('POST /api/recipes/ingredients-from-url', () => {
         'other',
         'spices',
       ])
+    })
+  })
+
+  describe('Fast path (structured data + Jev)', () => {
+    const setHtml = (html: string) => {
+      mockFetchHtmlResult = {
+        ok: true,
+        html,
+        contentType: 'text/html',
+        finalUrl: 'https://example.com/recipe',
+      }
+    }
+
+    it('parses JSON-LD ingredients in code and categorizes with Jev, skipping the LLM', async () => {
+      setHtml(
+        jsonLdRecipeHtml([
+          '1 lb elbow macaroni',
+          '2 cups shredded cheddar cheese, divided',
+          '3 tablespoons butter, melted',
+          '1 clove garlic, minced',
+        ])
+      )
+      mockCategorizeFn = (names) =>
+        names.map((n) => (/cheese|butter/.test(n) ? 'dairy' : /garlic/.test(n) ? 'produce' : 'other'))
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe' })
+
+      expect(response.status).toBe(200)
+      expect(categorizeCalls).toBe(1)
+      expect(lastExtractOptions).toBeUndefined()
+      expect(response.body).toEqual({
+        sourceUrl: 'https://example.com/recipe',
+        recipeName: 'Baked Mac & Cheese',
+        servings: '6 servings',
+        ingredients: [
+          { name: 'Elbow Macaroni', quantity: 1, unit: 'lb', notes: null, category: 'other' },
+          {
+            name: 'Cheddar Cheese',
+            quantity: 2,
+            unit: 'cup',
+            notes: 'shredded, divided',
+            category: 'dairy',
+          },
+          { name: 'Butter', quantity: 3, unit: 'tbsp', notes: 'melted', category: 'dairy' },
+          { name: 'Garlic', quantity: 1, unit: 'clove', notes: 'minced', category: 'produce' },
+        ],
+      })
+    })
+
+    it('coerces a category that was not offered to other', async () => {
+      setHtml(jsonLdRecipeHtml(['1 cup milk']))
+      mockCategorizeFn = (names) => names.map(() => 'dairy')
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe', categories: [{ value: 'produce', label: 'Produce' }] })
+
+      expect(response.status).toBe(200)
+      expect(response.body.ingredients[0].category).toBe('other')
+    })
+
+    it('falls back to the LLM when a line cannot be parsed', async () => {
+      setHtml(jsonLdRecipeHtml(['1 lb pasta', '2 cups 1 1/2 inch cubes of 3 day old bread']))
+      mockExtractIngredientsResult = {
+        content: validAIResponse,
+        usage: { inputTokens: 100, outputTokens: 50 },
+        model: 'claude-haiku-4-5',
+        latencyMs: 500,
+      }
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe' })
+
+      expect(response.status).toBe(200)
+      expect(categorizeCalls).toBe(0)
+      expect(lastExtractOptions).toBeDefined()
+      expect(response.body.recipeName).toBe('Simple Pasta')
+    })
+
+    it('falls back to the LLM when Jev fails', async () => {
+      setHtml(jsonLdRecipeHtml(['1 lb pasta']))
+      mockCategorizeError = new Error('jev down')
+      mockExtractIngredientsResult = {
+        content: validAIResponse,
+        usage: { inputTokens: 100, outputTokens: 50 },
+        model: 'claude-haiku-4-5',
+        latencyMs: 500,
+      }
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe' })
+
+      expect(response.status).toBe(200)
+      expect(categorizeCalls).toBe(1)
+      expect(lastExtractOptions).toBeDefined()
+      expect(response.body.recipeName).toBe('Simple Pasta')
+    })
+
+    it('uses the LLM for pages without structured data', async () => {
+      setHtml(validRecipeHtml)
+      mockExtractIngredientsResult = {
+        content: validAIResponse,
+        usage: { inputTokens: 100, outputTokens: 50 },
+        model: 'claude-haiku-4-5',
+        latencyMs: 500,
+      }
+
+      const response = await request(app)
+        .post('/api/recipes/ingredients-from-url')
+        .send({ url: 'https://example.com/recipe' })
+
+      expect(response.status).toBe(200)
+      expect(categorizeCalls).toBe(0)
     })
   })
 

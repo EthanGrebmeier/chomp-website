@@ -12,7 +12,16 @@ import {
   AnthropicClientError,
   type AnthropicClient,
 } from './anthropicClient.js'
-import { parseAIResponse, AIExtractError, hasIngredients } from './aiExtract.js'
+import {
+  parseAIResponse,
+  AIExtractError,
+  hasIngredients,
+  type AIExtraction,
+} from './aiExtract.js'
+import { parseIngredientLines } from './ingredientParser.js'
+import { createJevCategorizer, type JevCategorizer } from './jevCategorizer.js'
+import type { StructuredRecipe } from './structuredRecipe.js'
+import type { RecipeCategory } from './categories.js'
 import { normalizeExtraction } from './normalizeIngredients.js'
 import {
   createLoggingMiddleware,
@@ -106,40 +115,105 @@ const getAnthropicClient = (): AnthropicClient => {
 }
 
 /**
+ * Lazy-initialized Jev categorizer. Null when TYPESAFE_API_KEY isn't configured
+ * (or the fast path is disabled), in which case every import uses the LLM.
+ */
+let jevCategorizer: JevCategorizer | null | undefined
+
+const getJevCategorizer = (): JevCategorizer | null => {
+  if (jevCategorizer === undefined) {
+    const config = loadConfig()
+    jevCategorizer = config.typesafeApiKey
+      ? createJevCategorizer({ apiKey: config.typesafeApiKey, model: config.typesafeModel })
+      : null
+  }
+  return jevCategorizer
+}
+
+type RequestMetrics = {
+  urlHost: string | null
+  fetchLatencyMs: number | null
+  contentLatencyMs: number | null
+  aiLatencyMs: number | null
+  extractionPath: 'fast' | 'llm' | null
+  structuredSource: string | null
+  fastPathFallbackReason: string | null
+  categorizeLatencyMs: number | null
+  categorizeMinConfidence: number | null
+  tokenUsage: { input: number; output: number } | null
+}
+
+const buildLogEntry = (
+  req: Request,
+  metrics: RequestMetrics,
+  status: 'success' | 'error',
+  errorCode: string | null
+): RequestLogEntry => {
+  const { requestId, userId, startTime } = getRequestContext(req)
+  return {
+    requestId,
+    userId,
+    ...metrics,
+    totalLatencyMs: Date.now() - startTime,
+    status,
+    errorCode,
+  }
+}
+
+/**
  * Helper to build and log error responses with metrics.
  * Used for domain-specific errors where we have rich context.
  */
-const createErrorSender = (
-  req: Request,
-  res: Response,
-  metrics: {
-    urlHost: string | null
-    fetchLatencyMs: number | null
-    contentLatencyMs: number | null
-    aiLatencyMs: number | null
-    tokenUsage: { input: number; output: number } | null
-  }
-) => {
-  const ctx = getRequestContext(req)
-  const { requestId, userId, startTime } = ctx
-
+const createErrorSender = (req: Request, metrics: RequestMetrics) => {
   return (errorCode: RecipeUrlIngredientsErrorCode, message: string) => {
-    const totalLatencyMs = Date.now() - startTime
-    const logEntry: RequestLogEntry = {
-      requestId,
-      userId,
-      urlHost: metrics.urlHost,
-      fetchLatencyMs: metrics.fetchLatencyMs,
-      contentLatencyMs: metrics.contentLatencyMs,
-      aiLatencyMs: metrics.aiLatencyMs,
-      tokenUsage: metrics.tokenUsage,
-      totalLatencyMs,
-      status: 'error',
-      errorCode,
-    }
-    logRequest(logEntry)
+    logRequest(buildLogEntry(req, metrics, 'error', errorCode))
     // Throw to centralized error handler
     throw new RecipeUrlIngredientsError(errorCode, message)
+  }
+}
+
+/**
+ * Fast path: parse structured ingredient lines in code and categorize with Jev.
+ * Returns null (and records why) whenever it can't be confident, so the caller
+ * falls back to the full LLM extraction. Never throws.
+ */
+const tryFastPath = async (
+  recipe: StructuredRecipe,
+  categories: RecipeCategory[],
+  metrics: RequestMetrics
+): Promise<AIExtraction | null> => {
+  const categorizer = getJevCategorizer()
+  if (!categorizer) {
+    metrics.fastPathFallbackReason = 'fast_path_disabled'
+    return null
+  }
+
+  const parsed = parseIngredientLines(recipe.ingredientLines)
+  if (!parsed.ok) {
+    metrics.fastPathFallbackReason = 'parse_failed'
+    return null
+  }
+
+  const timer = startTimer()
+  try {
+    const result = await categorizer.categorize(parsed.ingredients, {
+      categories,
+      recipeName: recipe.name,
+    })
+    metrics.categorizeLatencyMs = result.latencyMs
+    metrics.categorizeMinConfidence = result.minConfidence
+    return {
+      recipeName: recipe.name,
+      servings: recipe.servings,
+      ingredients: parsed.ingredients.map((ingredient, index) => ({
+        ...ingredient,
+        category: result.categories[index],
+      })),
+    }
+  } catch {
+    metrics.categorizeLatencyMs = timer.elapsed()
+    metrics.fastPathFallbackReason = 'categorize_failed'
+    return null
   }
 }
 
@@ -148,20 +222,24 @@ const createErrorSender = (
  * Wrapped with asyncHandler to ensure errors propagate to Express error middleware.
  */
 const extractIngredientsHandler = asyncHandler(async (req: Request, res: Response) => {
-  const ctx = getRequestContext(req)
-  const { requestId, userId } = ctx
+  const { requestId } = getRequestContext(req)
 
   // Track metrics for logging
-  const metrics = {
-    urlHost: null as string | null,
-    fetchLatencyMs: null as number | null,
-    contentLatencyMs: null as number | null,
-    aiLatencyMs: null as number | null,
-    tokenUsage: null as { input: number; output: number } | null,
+  const metrics: RequestMetrics = {
+    urlHost: null,
+    fetchLatencyMs: null,
+    contentLatencyMs: null,
+    aiLatencyMs: null,
+    extractionPath: null,
+    structuredSource: null,
+    fastPathFallbackReason: null,
+    categorizeLatencyMs: null,
+    categorizeMinConfidence: null,
+    tokenUsage: null,
   }
 
   // Error helper that logs metrics then throws to centralized handler
-  const sendError = createErrorSender(req, res, metrics)
+  const sendError = createErrorSender(req, metrics)
 
   // The mobile client aborts on its own timeout and on every retry, but the
   // HTTP request keeps running here with no way to cancel an in-flight fetch or
@@ -175,19 +253,7 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
   })
   const bailIfClientGone = (): boolean => {
     if (!clientGone) return false
-    const logEntry: RequestLogEntry = {
-      requestId,
-      userId,
-      urlHost: metrics.urlHost,
-      fetchLatencyMs: metrics.fetchLatencyMs,
-      contentLatencyMs: metrics.contentLatencyMs,
-      aiLatencyMs: metrics.aiLatencyMs,
-      tokenUsage: metrics.tokenUsage,
-      totalLatencyMs: Date.now() - ctx.startTime,
-      status: 'error',
-      errorCode: 'client_disconnected',
-    }
-    logRequest(logEntry)
+    logRequest(buildLogEntry(req, metrics, 'error', 'client_disconnected'))
     return true
   }
 
@@ -231,9 +297,9 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
   if (bailIfClientGone()) return
 
   // Extract main content from HTML. This step runs a synchronous JSDOM parse
-  // for pages without JSON-LD, which blocks the event loop, so we always time
-  // it: an unlogged multi-second parse here was the hidden cost behind imports
-  // that blew past the mobile client's timeout.
+  // for pages without structured recipe data, which blocks the event loop, so
+  // we always time it: an unlogged multi-second parse here was the hidden cost
+  // behind imports that blew past the mobile client's timeout.
   const contentTimer = startTimer()
   const contentResult = await extractContent(fetchResult.html, fetchResult.finalUrl)
   metrics.contentLatencyMs = contentTimer.elapsed()
@@ -244,73 +310,70 @@ const extractIngredientsHandler = asyncHandler(async (req: Request, res: Respons
     return
   }
 
-  // Skip the most expensive step (the AI round-trip) if the client already left.
   if (bailIfClientGone()) return
 
-  // Call AI to extract ingredients
-  let aiResult
-  try {
-    const client = getAnthropicClient()
-    aiResult = await client.extractIngredients(contentResult.content, {
-      requestId,
-      categories,
-    })
-    metrics.aiLatencyMs = aiResult.latencyMs
-    metrics.tokenUsage = {
-      input: aiResult.usage.inputTokens,
-      output: aiResult.usage.outputTokens,
-    }
-  } catch (error) {
-    if (error instanceof AnthropicClientError) {
-      const errorCode = mapAnthropicErrorCode(error.code)
-      sendError(errorCode, error.message)
-      return
-    }
-    sendError('server_error', 'AI extraction failed')
-    return
+  // Fast path: structured ingredient lines + deterministic parse + Jev.
+  let extraction: AIExtraction | null = null
+  if (contentResult.recipe) {
+    metrics.structuredSource = contentResult.recipe.source
+    extraction = await tryFastPath(contentResult.recipe, categories, metrics)
+    if (extraction) metrics.extractionPath = 'fast'
+    else if (bailIfClientGone()) return
   }
 
-  // Parse and validate AI response
-  let parsedExtraction
-  try {
-    parsedExtraction = parseAIResponse(aiResult)
-  } catch (error) {
-    if (error instanceof AIExtractError) {
-      sendError('parse_failed', error.message)
+  if (!extraction) {
+    metrics.extractionPath = 'llm'
+
+    // Call AI to extract ingredients
+    let aiResult
+    try {
+      const client = getAnthropicClient()
+      aiResult = await client.extractIngredients(contentResult.content, {
+        requestId,
+        categories,
+      })
+      metrics.aiLatencyMs = aiResult.latencyMs
+      metrics.tokenUsage = {
+        input: aiResult.usage.inputTokens,
+        output: aiResult.usage.outputTokens,
+      }
+    } catch (error) {
+      if (error instanceof AnthropicClientError) {
+        const errorCode = mapAnthropicErrorCode(error.code)
+        sendError(errorCode, error.message)
+        return
+      }
+      sendError('server_error', 'AI extraction failed')
       return
     }
-    sendError('parse_failed', 'Failed to parse AI response')
-    return
+
+    // Parse and validate AI response
+    try {
+      extraction = parseAIResponse(aiResult).extraction
+    } catch (error) {
+      if (error instanceof AIExtractError) {
+        sendError('parse_failed', error.message)
+        return
+      }
+      sendError('parse_failed', 'Failed to parse AI response')
+      return
+    }
   }
 
   // Check if we got any ingredients
-  if (!hasIngredients(parsedExtraction.extraction)) {
+  if (!hasIngredients(extraction)) {
     sendError('unsupported_content', 'No ingredients found in page')
     return
   }
 
   // Normalize the extraction to final response format
   const response: RecipeUrlIngredientsResponse = normalizeExtraction(
-    parsedExtraction.extraction,
+    extraction,
     rawUrl,
     categories
   )
 
-  // Log successful request
-  const totalLatencyMs = Date.now() - ctx.startTime
-  const logEntry: RequestLogEntry = {
-    requestId,
-    userId,
-    urlHost: metrics.urlHost,
-    fetchLatencyMs: metrics.fetchLatencyMs,
-    contentLatencyMs: metrics.contentLatencyMs,
-    aiLatencyMs: metrics.aiLatencyMs,
-    tokenUsage: metrics.tokenUsage,
-    totalLatencyMs,
-    status: 'success',
-    errorCode: null,
-  }
-  logRequest(logEntry)
+  logRequest(buildLogEntry(req, metrics, 'success', null))
 
   res.status(200).json(response)
 })

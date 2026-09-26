@@ -1,12 +1,22 @@
 import { Defuddle } from 'defuddle/node'
 import { JSDOM } from 'jsdom'
 import { parseHTML } from 'linkedom'
+import {
+  extractStructuredRecipe,
+  formatStructuredRecipeAsContent,
+  type StructuredRecipe,
+} from './structuredRecipe.js'
 
 export type ContentExtractSuccess = {
   ok: true
   title: string | null
   content: string
   byline: string | null
+  /**
+   * Machine-readable recipe data (JSON-LD, WPRM, microdata) when the page has
+   * it. Enables the deterministic, LLM-free parse path.
+   */
+  recipe: StructuredRecipe | null
 }
 
 export type ContentExtractErrorCode = 'parse_failed' | 'no_content'
@@ -18,141 +28,6 @@ export type ContentExtractError = {
 }
 
 export type ContentExtractResult = ContentExtractSuccess | ContentExtractError
-
-/**
- * Schema.org Recipe data extracted from JSON-LD.
- */
-type JsonLdRecipe = {
-  name: string | null
-  recipeYield: string | null
-  recipeIngredient: string[]
-}
-
-/**
- * Extract Schema.org Recipe data from JSON-LD scripts in the document.
- * Handles both top-level Recipe objects and nested @graph arrays.
- *
- * @param document - The parsed HTML document
- * @returns Recipe data if found, null otherwise
- */
-const extractJsonLdRecipe = (document: Document): JsonLdRecipe | null => {
-  const scripts = document.querySelectorAll('script[type="application/ld+json"]')
-
-  for (const script of scripts) {
-    const content = script.textContent
-    if (!content) continue
-
-    try {
-      const data = JSON.parse(content)
-      const recipe = findRecipeInJsonLd(data)
-      if (recipe) return recipe
-    } catch {
-      // Invalid JSON, skip this script
-      continue
-    }
-  }
-
-  return null
-}
-
-/**
- * Recursively search for a Recipe object in JSON-LD data.
- * Handles @graph arrays and nested structures.
- */
-const findRecipeInJsonLd = (data: unknown): JsonLdRecipe | null => {
-  if (!data || typeof data !== 'object') return null
-
-  // Handle arrays (including @graph)
-  if (Array.isArray(data)) {
-    for (const item of data) {
-      const recipe = findRecipeInJsonLd(item)
-      if (recipe) return recipe
-    }
-    return null
-  }
-
-  const obj = data as Record<string, unknown>
-
-  // Check if this object is a Recipe
-  const type = obj['@type']
-  const isRecipe =
-    type === 'Recipe' ||
-    (Array.isArray(type) && type.includes('Recipe'))
-
-  if (isRecipe) {
-    return parseRecipeObject(obj)
-  }
-
-  // Check @graph array
-  if (obj['@graph'] && Array.isArray(obj['@graph'])) {
-    return findRecipeInJsonLd(obj['@graph'])
-  }
-
-  return null
-}
-
-/**
- * Parse a Recipe object and extract relevant fields.
- */
-const parseRecipeObject = (obj: Record<string, unknown>): JsonLdRecipe | null => {
-  // Extract recipeIngredient - required for a valid recipe
-  const ingredients = obj['recipeIngredient']
-  if (!ingredients || !Array.isArray(ingredients)) {
-    return null
-  }
-
-  // Filter and normalize ingredients to strings
-  const recipeIngredient = ingredients
-    .filter((item): item is string => typeof item === 'string')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0)
-
-  if (recipeIngredient.length === 0) {
-    return null
-  }
-
-  // Extract name
-  const name = typeof obj['name'] === 'string' ? obj['name'].trim() : null
-
-  // Extract recipeYield (can be string or array)
-  let recipeYield: string | null = null
-  const yieldValue = obj['recipeYield']
-  if (typeof yieldValue === 'string') {
-    recipeYield = yieldValue.trim()
-  } else if (Array.isArray(yieldValue) && yieldValue.length > 0) {
-    // Take the first yield value
-    const first = yieldValue[0]
-    if (typeof first === 'string') {
-      recipeYield = first.trim()
-    }
-  }
-
-  return { name, recipeYield, recipeIngredient }
-}
-
-/**
- * Format JSON-LD recipe data as structured text for AI extraction.
- */
-const formatJsonLdRecipeAsContent = (recipe: JsonLdRecipe): string => {
-  const lines: string[] = []
-
-  if (recipe.name) {
-    lines.push(`Recipe Name: ${recipe.name}`)
-  }
-
-  if (recipe.recipeYield) {
-    lines.push(`Servings: ${recipe.recipeYield}`)
-  }
-
-  lines.push('')
-  lines.push('Ingredients:')
-
-  for (const ingredient of recipe.recipeIngredient) {
-    lines.push(`- ${ingredient}`)
-  }
-
-  return lines.join('\n')
-}
 
 /**
  * Opening tag of a reader-comment / discussion container. Recipe content always
@@ -207,15 +82,16 @@ const extractFromHtml = async (
   try {
     const { document } = parseHTML(html)
 
-    // Try JSON-LD Recipe extraction first (before removing scripts!)
-    const jsonLdRecipe = extractJsonLdRecipe(document)
-    if (jsonLdRecipe) {
-      const content = formatJsonLdRecipeAsContent(jsonLdRecipe)
+    // Try structured recipe data first (JSON-LD before removing scripts, then
+    // WPRM / microdata markup). This also skips the expensive JSDOM parse.
+    const recipe = extractStructuredRecipe(document)
+    if (recipe) {
       return {
         ok: true,
-        title: jsonLdRecipe.name,
-        content,
+        title: recipe.name,
+        content: formatStructuredRecipeAsContent(recipe),
         byline: null,
+        recipe,
       }
     }
 
@@ -227,7 +103,7 @@ const extractFromHtml = async (
     const article = await Defuddle(dom, url, {
       markdown: true,
       removeImages: true,
-    })  
+    })
 
     if (article.content) {
       return {
@@ -235,6 +111,7 @@ const extractFromHtml = async (
         title: article.title?.trim() || null,
         content: article.content,
         byline: article.author?.trim() || null,
+        recipe: null,
       }
     }
 
@@ -247,6 +124,7 @@ const extractFromHtml = async (
         title: extractTitle(document),
         content: bodyText.trim(),
         byline: null,
+        recipe: null,
       }
     }
 
