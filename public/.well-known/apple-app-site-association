@@ -4,14 +4,29 @@
     "details": [
       {
         "appID": "K8MV5DQ32C.com.ethangrebmeier.chomp",
-        "paths": ["/join-list/*", "/recipes/share/*", "/verify-email-link", "/verify-email-link/*"]
+        "paths": [
+          "/join-list/*",
+          "/recipes/share/*",
+          "/verify-email-link",
+          "/verify-email-link/*"
+        ]
+      },
+      {
+        "appID": "K8MV5DQ32C.dev.chomp.sync-lab",
+        "paths": [
+          "/join/*"
+        ]
       }
     ]
   },
   "activitycontinuation": {
-    "apps": ["K8MV5DQ32C.com.ethangrebmeier.chomp"]
+    "apps": [
+      "K8MV5DQ32C.com.ethangrebmeier.chomp"
+    ]
   },
   "webcredentials": {
-    "apps": ["K8MV5DQ32C.com.ethangrebmeier.chomp"]
+    "apps": [
+      "K8MV5DQ32C.com.ethangrebmeier.chomp"
+    ]
   }
 }

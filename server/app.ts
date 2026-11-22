@@ -1,4 +1,5 @@
 import express from 'express'
+import { createCollectionInvitationRoutes } from './collectionInvitations.js'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createAccountDeletionRoute } from './account/route.js'
@@ -31,6 +32,11 @@ export const createApp = () => {
 
   // JSON body parser for API routes
   app.use(express.json())
+
+  app.get('/.well-known/apple-app-site-association', (_req, res) => {
+    res.type('application/json').sendFile(path.join(publicPath, '.well-known/apple-app-site-association'), { dotfiles: 'allow' })
+  })
+  app.use(createCollectionInvitationRoutes())
 
   app.use(express.static(distPath))
   app.use('/.well-known', express.static(path.join(publicPath, '.well-known')))
